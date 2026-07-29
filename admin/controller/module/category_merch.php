@@ -100,6 +100,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['button_cancel'] = $this->language->get('button_cancel');
 		$data['button_recalculate'] = $this->language->get('button_recalculate');
 		$data['button_check_updates'] = $this->language->get('button_check_updates');
+		$data['button_install_update'] = $this->language->get('button_install_update');
 		$data['button_download'] = $this->language->get('button_download');
 		$data['column_name'] = $this->language->get('column_name');
 		$data['column_total'] = $this->language->get('column_total');

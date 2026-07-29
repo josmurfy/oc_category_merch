@@ -419,7 +419,10 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
   function fetchPage() {
     loading.style.display = '';
     var url = URL_OVR + '&page=' + page + '&search=' + encodeURIComponent(searchInput.value.trim());
-    fetch(url, { credentials: 'same-origin' })
+    fetch(url, {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         loading.style.display = 'none';
@@ -459,11 +462,16 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
   var TEXT_LATEST = {{ text_latest_version|json_encode|raw }};
   var BUTTON_DOWNLOAD = {{ button_download|json_encode|raw }};
   var URL_CHECK = {{ check_updates|json_encode|raw }};
+  var URL_INSTALL = {{ install_update|json_encode|raw }};
+  window.BUTTON_INSTALL_UPDATE = {{ button_install_update|json_encode|raw }};
 
   btn.addEventListener('click', function () {
     out.innerHTML = '<div class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> ' + TEXT_CHECKING + '</div>';
-    fetch(URL_CHECK, { credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
+    fetch(URL_CHECK, {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+      .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error('Invalid JSON: ' + t.substring(0, 200)); } }); })
       .then(function (j) {
         if (j.error) { out.innerHTML = '<div class="alert alert-warning">' + j.error + '</div>'; return; }
         var html = '';
@@ -471,7 +479,8 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
           html += '<div class="alert alert-success"><strong><i class="fa-solid fa-arrow-up"></i> ' + TEXT_UPDATE_AVAILABLE + '</strong><br>' +
                   TEXT_LATEST + ' : <span class="badge bg-success">v' + (j.latest_version || '') + '</span></div>';
           if (j.download_url) {
-            html += '<a href="' + j.download_url + '" target="_blank" rel="noopener" class="btn btn-success"><i class="fa-solid fa-download"></i> ' + BUTTON_DOWNLOAD + '</a>';
+            html += '<a href="' + j.download_url + '" target="_blank" rel="noopener" class="btn btn-success me-2"><i class="fa-solid fa-download"></i> ' + BUTTON_DOWNLOAD + '</a>';
+            html += '<button type="button" class="btn btn-primary" id="btn-do-install" data-url="' + j.download_url + '"><i class="fa-solid fa-bolt"></i> ' + (window.BUTTON_INSTALL_UPDATE || 'Install update') + '</button>';
           }
         } else {
           html += '<div class="alert alert-info"><i class="fa-solid fa-check"></i> ' + TEXT_UP_TO_DATE + '</div>';
@@ -480,8 +489,26 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
           }
         }
         out.innerHTML = html;
+        var doInstall = document.getElementById('btn-do-install');
+        if (doInstall) {
+          doInstall.addEventListener('click', function () {
+            doInstall.disabled = true;
+            doInstall.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+            var u = URL_INSTALL + '&download_url=' + encodeURIComponent(doInstall.getAttribute('data-url'));
+            fetch(u, {
+              credentials: 'same-origin',
+              headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+              .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error(t.substring(0, 200)); } }); })
+              .then(function (j2) {
+                if (j2.error) { out.innerHTML += '<div class="alert alert-danger mt-2">' + (j2.message || 'Update failed') + '</div>'; return; }
+                out.innerHTML = '<div class="alert alert-success"><i class="fa-solid fa-check"></i> Update installed (v' + (j2.new_version || '?') + ', ' + (j2.copied || 0) + ' files). Reload the page.</div>';
+              })
+              .catch(function (e) { out.innerHTML += '<div class="alert alert-danger mt-2">' + (e.message || 'Install failed') + '</div>'; });
+          });
+        }
       })
-      .catch(function () { out.innerHTML = '<div class="alert alert-danger">Network error</div>'; });
+      .catch(function (e) { out.innerHTML = '<div class="alert alert-danger">' + (e.message || 'Network error') + '</div>'; });
   });
 })();
 </script>

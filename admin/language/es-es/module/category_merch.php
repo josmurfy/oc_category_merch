@@ -47,6 +47,7 @@ $_['button_save'] = 'Guardar';
 $_['button_cancel'] = 'Cancelar';
 $_['button_recalculate'] = 'Recalcular / Refrescar caché';
 $_['button_check_updates'] = 'Buscar actualizaciones';
+$_['button_install_update'] = 'Instalar actualización';
 $_['button_download'] = 'Descargar release';
 
 // Actualizaciones
