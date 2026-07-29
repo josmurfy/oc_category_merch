@@ -3,7 +3,7 @@
   "description": "Dashboard and conversion-oriented category ordering with empty-category hiding, SEO-URL aware.",
   "version": "0.3.1",
   "author": "PhoenixLiquidation",
-  "link": "https://phoenixliquidation.ca",
+  "link": "https://github.com/josmurfy/oc_category_merch",
   "repository": "josmurfy/oc_category_merch",
-  "update_manifest_url": "https://phoenixliquidation.ca/dev/downloads/oc_category_merch.manifest.json"
+  "update_manifest_url": ""
 }
