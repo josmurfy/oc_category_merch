@@ -1,0 +1,497 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <a href="{{ recalculate }}" data-oc-toggle="ajax" data-bs-toggle="tooltip" title="{{ button_recalculate }}" class="btn btn-warning"><i class="fa-solid fa-arrows-rotate"></i></a>
+        <button type="submit" form="form-module" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} <small class="text-muted">v{{ module_version }}</small></h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    <ul class="nav nav-tabs" id="cm-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-main" type="button" role="tab">
+          <i class="fa-solid fa-chart-column"></i> {{ tab_dashboard }}
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-overrides" type="button" role="tab">
+          <i class="fa-solid fa-sliders"></i> {{ tab_overrides }}
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-updates" type="button" role="tab">
+          <i class="fa-brands fa-github"></i> {{ tab_updates }}
+        </button>
+      </li>
+    </ul>
+
+    <form id="form-module" action="{{ save }}" method="post" data-oc-toggle="ajax">
+      <input type="hidden" id="overrides_json" name="overrides_json" value="{{ module_oc_category_merch_overrides|json_encode|escape('html_attr') }}" />
+
+      <div class="tab-content border border-top-0 p-4 bg-white">
+
+        {# ============ TAB: MAIN (Dashboard + Settings, order depends on status) ============ #}
+        <div class="tab-pane fade show active" id="tab-main" role="tabpanel">
+
+          {% set settings_block %}
+            <div class="card">
+              <div class="card-header"><i class="fa-solid fa-gear"></i> {{ tab_settings }}</div>
+              <div class="card-body">
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">{{ entry_status }}</label>
+                  <div class="col-sm-9">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="module_oc_category_merch_status" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-status" name="module_oc_category_merch_status" value="1"{% if module_oc_category_merch_status %} checked{% endif %} />
+                      <label class="form-check-label" for="sw-status" id="lbl-status">
+                        {% if module_oc_category_merch_status %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">{{ entry_hide_empty }}</label>
+                  <div class="col-sm-9">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="module_oc_category_merch_hide_empty" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty" name="module_oc_category_merch_hide_empty" value="1"{% if module_oc_category_merch_hide_empty %} checked{% endif %} />
+                      <label class="form-check-label" for="sw-hide-empty" id="lbl-hide-empty">
+                        {% if module_oc_category_merch_hide_empty %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                      </label>
+                    </div>
+                    <div class="form-text">{{ help_hide_empty }}</div>
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">{{ entry_hide_empty_subs }}</label>
+                  <div class="col-sm-9">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="module_oc_category_merch_hide_empty_subs" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty-subs" name="module_oc_category_merch_hide_empty_subs" value="1"{% if module_oc_category_merch_hide_empty_subs %} checked{% endif %} />
+                      <label class="form-check-label" for="sw-hide-empty-subs" id="lbl-hide-empty-subs">
+                        {% if module_oc_category_merch_hide_empty_subs %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                      </label>
+                    </div>
+                    <div class="form-text">{{ help_hide_empty_subs }}</div>
+                  </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                  <label class="col-sm-3 col-form-label">{{ entry_sort_by_score }}</label>
+                  <div class="col-sm-9">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="module_oc_category_merch_sort_by_score" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-sort" name="module_oc_category_merch_sort_by_score" value="1"{% if module_oc_category_merch_sort_by_score %} checked{% endif %} />
+                      <label class="form-check-label" for="sw-sort" id="lbl-sort">
+                        {% if module_oc_category_merch_sort_by_score %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                      </label>
+                    </div>
+                    <div class="form-text">{{ help_sort_by_score }}</div>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-sm-3 col-form-label">{{ entry_weight_volume }}</label>
+                  <div class="col-sm-9">
+                    <input type="number" name="module_oc_category_merch_weight_volume" min="0" max="100" value="{{ module_oc_category_merch_weight_volume }}" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-sm-3 col-form-label">{{ entry_cache_ttl }}</label>
+                  <div class="col-sm-9">
+                    <input type="number" name="module_oc_category_merch_cache_ttl" min="30" max="86400" value="{{ module_oc_category_merch_cache_ttl }}" class="form-control" />
+                    <div class="form-text">{{ help_cache_ttl }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endset %}
+
+          {% set dashboard_block %}
+            <div class="card">
+              <div class="card-header"><i class="fa-solid fa-chart-column"></i> {{ text_dashboard }}</div>
+              <div class="card-body">
+                {% if chart_labels|length > 0 %}
+                  <div class="row">
+                    <div class="col-lg-7">
+                      <div style="position: relative; height: 420px;">
+                        <canvas id="cm-chart"></canvas>
+                      </div>
+                    </div>
+                    <div class="col-lg-5">
+                      <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                        <table class="table table-sm table-striped">
+                          <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                              <th>{{ column_name }}</th>
+                              <th class="text-end">{{ column_total }}</th>
+                              <th class="text-end">{{ column_score }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for row in dashboard_rows %}
+                              {% if row.total > 0 %}
+                              <tr>
+                                <td>{{ row.name }}</td>
+                                <td class="text-end">{{ row.total }}</td>
+                                <td class="text-end">
+                                  <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                      <div class="progress-bar bg-success" style="width: {{ row.score }}%;"></div>
+                                    </div>
+                                    <span class="text-nowrap" style="min-width: 40px;">{{ row.score }}%</span>
+                                  </div>
+                                </td>
+                              </tr>
+                              {% endif %}
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="text-center text-muted py-5">
+                    <i class="fa-solid fa-chart-simple fa-3x mb-3"></i>
+                    <p>{{ text_no_results }}</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endset %}
+
+          {{ dashboard_block }}
+          <div class="mt-3">{{ settings_block }}</div>
+
+        </div>
+
+        {# ============ TAB: OVERRIDES (AJAX-paginated) ============ #}
+        <div class="tab-pane fade" id="tab-overrides" role="tabpanel">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="search" id="ovr-search" class="form-control" placeholder="{{ column_name }}..." />
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <span class="text-muted small" id="ovr-count">{{ dashboard_tree_total }} categories · page 1 / <span id="ovr-total-pages">1</span></span>
+            </div>
+          </div>
+
+          <div class="table-responsive" style="max-height: 600px; overflow-y: auto; border: 1px solid #e6e6e6; border-radius: 4px;">
+            <table class="table table-sm table-striped mb-0">
+              <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                <tr>
+                  <th>{{ column_name }}</th>
+                  <th class="text-end" style="width: 140px;">{{ column_total }}</th>
+                  <th class="text-end" style="width: 180px;">{{ column_score }} <i class="fa-solid fa-arrow-down-wide-short small"></i></th>
+                  <th style="width: 220px;">{{ column_override }}</th>
+                  <th style="width: 110px;">{{ column_status }}</th>
+                </tr>
+              </thead>
+              <tbody id="ovr-tbody">
+                {% if dashboard_tree %}
+                  {% for row in dashboard_tree %}
+                    {% set mode = module_oc_category_merch_overrides[row.category_id] is defined ? module_oc_category_merch_overrides[row.category_id] : 0 %}
+                    <tr>
+                      <td>
+                        {% if row.level > 0 %}{% for i in 1..row.level %}&nbsp;&nbsp;&nbsp;{% endfor %}{% endif %}
+                        {{ row.name }}
+                      </td>
+                      <td class="text-end">{{ row.total }}</td>
+                      <td class="text-end">
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="progress flex-grow-1" style="height: 6px;">
+                            <div class="progress-bar bg-info" style="width: {{ row.score }}%;"></div>
+                          </div>
+                          <span class="text-nowrap" style="min-width: 40px;">{{ row.score }}%</span>
+                        </div>
+                      </td>
+                      <td>
+                        <select class="form-select form-select-sm ovr-select" data-cid="{{ row.category_id }}">
+                          <option value="0"{% if mode == 0 %} selected{% endif %}>{{ text_auto }}</option>
+                          <option value="1"{% if mode == 1 %} selected{% endif %}>{{ text_force_show }}</option>
+                          <option value="-1"{% if mode == -1 %} selected{% endif %}>{{ text_force_hide }}</option>
+                        </select>
+                      </td>
+                      <td>
+                        {% if row.status %}
+                          <span class="badge bg-success">{{ text_enabled }}</span>
+                        {% else %}
+                          <span class="badge bg-secondary">{{ text_disabled }}</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr><td colspan="5" class="text-center">{{ text_no_results }}</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="ovr-prev"><i class="fa-solid fa-angle-left"></i></button>
+            <div id="ovr-loading" class="text-muted small" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="ovr-next"><i class="fa-solid fa-angle-right"></i></button>
+          </div>
+        </div>
+
+        {# ============ TAB: UPDATES ============ #}
+        <div class="tab-pane fade" id="tab-updates" role="tabpanel">
+          <p>{{ text_updates_intro }}</p>
+          <dl class="row">
+            <dt class="col-sm-3">{{ text_current_version }}</dt>
+            <dd class="col-sm-9"><span class="badge bg-primary">v{{ module_version }}</span></dd>
+            <dt class="col-sm-3">{{ text_repository }}</dt>
+            <dd class="col-sm-9">
+              {% if module_repository %}
+                <a href="https://github.com/{{ module_repository }}" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> {{ module_repository }}</a>
+              {% else %}
+                <em class="text-muted">{{ text_no_repository }}</em>
+              {% endif %}
+            </dd>
+          </dl>
+          <button type="button" id="btn-check-updates" class="btn btn-secondary">
+            <i class="fa-solid fa-arrows-rotate"></i> {{ button_check_updates }}
+          </button>
+          <button type="button" id="btn-install-update" class="btn btn-primary ms-2" style="display:none">
+            <i class="fa-solid fa-download"></i> {{ button_install_update }}
+          </button>
+          <div id="update-result" class="mt-3"></div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ---- Switch label sync ----
+document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEach(function (cb) {
+  var label = document.getElementById('lbl-' + cb.id.replace(/^sw-/, ''));
+  if (!label) return;
+  cb.addEventListener('change', function () {
+    label.textContent = cb.checked ? {{ text_enabled|json_encode|raw }} : {{ text_disabled|json_encode|raw }};
+  });
+});
+
+// ---- Chart.js bar chart ----
+(function () {
+  var labels = {{ chart_labels|json_encode|raw }};
+  var totals = {{ chart_totals|json_encode|raw }};
+  var canvas = document.getElementById('cm-chart');
+  if (!canvas || !labels.length) return;
+
+  function drawChart() {
+    if (typeof Chart === 'undefined') {
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+      s.onload = drawChart;
+      document.head.appendChild(s);
+      return;
+    }
+    new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: {{ column_total|json_encode|raw }},
+          data: totals,
+          backgroundColor: 'rgba(40, 167, 69, 0.7)',
+          borderColor: 'rgba(40, 167, 69, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+  drawChart();
+})();
+
+// ---- Overrides pagination + search + state tracking ----
+(function () {
+  var URL_OVR = {{ overrides_url|json_encode|raw }};
+  var TEXT_AUTO = {{ text_auto|json_encode|raw }};
+  var TEXT_FORCE_SHOW = {{ text_force_show|json_encode|raw }};
+  var TEXT_FORCE_HIDE = {{ text_force_hide|json_encode|raw }};
+  var TEXT_ENABLED = {{ text_enabled|json_encode|raw }};
+  var TEXT_DISABLED = {{ text_disabled|json_encode|raw }};
+  var TEXT_NO_RESULTS = {{ text_no_results|json_encode|raw }};
+
+  var hidden = document.getElementById('overrides_json');
+  var state = {};
+  try { state = JSON.parse(hidden.value) || {}; } catch (e) { state = {}; }
+
+  var tbody = document.getElementById('ovr-tbody');
+  var searchInput = document.getElementById('ovr-search');
+  var btnPrev = document.getElementById('ovr-prev');
+  var btnNext = document.getElementById('ovr-next');
+  var loading = document.getElementById('ovr-loading');
+  var count = document.getElementById('ovr-count');
+  var totalPages = document.getElementById('ovr-total-pages');
+
+  var page = 1;
+  var pages = 1;
+  var searchTimer = null;
+
+  // Escape HTML
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function persistState() {
+    hidden.value = JSON.stringify(state);
+  }
+
+  function bindRowSelects() {
+    tbody.querySelectorAll('.ovr-select').forEach(function (sel) {
+      // Set from state if present
+      var cid = sel.getAttribute('data-cid');
+      if (state[cid] !== undefined) {
+        sel.value = String(state[cid]);
+      }
+      sel.addEventListener('change', function () {
+        var v = parseInt(sel.value, 10) || 0;
+        if (v === 0) { delete state[cid]; }
+        else { state[cid] = v; }
+        persistState();
+      });
+    });
+  }
+  bindRowSelects();
+
+  function renderRows(rows) {
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">' + esc(TEXT_NO_RESULTS) + '</td></tr>';
+      return;
+    }
+    var html = '';
+    rows.forEach(function (r) {
+      var indent = '';
+      for (var i = 0; i < r.level; i++) { indent += '&nbsp;&nbsp;&nbsp;'; }
+      var mode = state[r.category_id] !== undefined ? state[r.category_id] : r.mode;
+      html += '<tr>' +
+        '<td>' + indent + esc(r.name) + '</td>' +
+        '<td class="text-end">' + r.total + '</td>' +
+        '<td class="text-end">' +
+          '<div class="d-flex align-items-center gap-2">' +
+            '<div class="progress flex-grow-1" style="height: 6px;"><div class="progress-bar bg-info" style="width: ' + r.score + '%;"></div></div>' +
+            '<span class="text-nowrap" style="min-width: 40px;">' + r.score + '%</span>' +
+          '</div>' +
+        '</td>' +
+        '<td>' +
+          '<select class="form-select form-select-sm ovr-select" data-cid="' + r.category_id + '">' +
+            '<option value="0"' + (mode == 0 ? ' selected' : '') + '>' + esc(TEXT_AUTO) + '</option>' +
+            '<option value="1"' + (mode == 1 ? ' selected' : '') + '>' + esc(TEXT_FORCE_SHOW) + '</option>' +
+            '<option value="-1"' + (mode == -1 ? ' selected' : '') + '>' + esc(TEXT_FORCE_HIDE) + '</option>' +
+          '</select>' +
+        '</td>' +
+        '<td>' + (r.status ? '<span class="badge bg-success">' + esc(TEXT_ENABLED) + '</span>' : '<span class="badge bg-secondary">' + esc(TEXT_DISABLED) + '</span>') + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+    bindRowSelects();
+  }
+
+  function fetchPage() {
+    loading.style.display = '';
+    var url = URL_OVR + '&page=' + page + '&search=' + encodeURIComponent(searchInput.value.trim());
+    fetch(url, { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        loading.style.display = 'none';
+        if (j.error) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">' + esc(j.error) + '</td></tr>';
+          return;
+        }
+        pages = Math.max(1, j.pages || 1);
+        page = j.page || 1;
+        count.firstChild.nodeValue = j.total + ' categories · page ' + page + ' / ';
+        totalPages.textContent = pages;
+        renderRows(j.rows || []);
+      })
+      .catch(function () {
+        loading.style.display = 'none';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Network error</td></tr>';
+      });
+  }
+
+  btnPrev.addEventListener('click', function () { if (page > 1) { page--; fetchPage(); } });
+  btnNext.addEventListener('click', function () { if (page < pages) { page++; fetchPage(); } });
+  searchInput.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { page = 1; fetchPage(); }, 350);
+  });
+})();
+
+// ---- Update checker ----
+(function () {
+  var btn = document.getElementById('btn-check-updates');
+  var out = document.getElementById('update-result');
+  if (!btn) return;
+
+  var TEXT_CHECKING = {{ text_checking|json_encode|raw }};
+  var TEXT_UP_TO_DATE = {{ text_up_to_date|json_encode|raw }};
+  var TEXT_UPDATE_AVAILABLE = {{ text_update_available|json_encode|raw }};
+  var TEXT_LATEST = {{ text_latest_version|json_encode|raw }};
+  var BUTTON_DOWNLOAD = {{ button_download|json_encode|raw }};
+  var URL_CHECK = {{ check_updates|json_encode|raw }};
+
+  btn.addEventListener('click', function () {
+    out.innerHTML = '<div class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> ' + TEXT_CHECKING + '</div>';
+    fetch(URL_CHECK, { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j.error) { out.innerHTML = '<div class="alert alert-warning">' + j.error + '</div>'; return; }
+        var html = '';
+        if (j.update_available) {
+          html += '<div class="alert alert-success"><strong><i class="fa-solid fa-arrow-up"></i> ' + TEXT_UPDATE_AVAILABLE + '</strong><br>' +
+                  TEXT_LATEST + ' : <span class="badge bg-success">v' + (j.latest_version || '') + '</span></div>';
+          if (j.download_url) {
+            html += '<a href="' + j.download_url + '" target="_blank" rel="noopener" class="btn btn-success"><i class="fa-solid fa-download"></i> ' + BUTTON_DOWNLOAD + '</a>';
+          }
+        } else {
+          html += '<div class="alert alert-info"><i class="fa-solid fa-check"></i> ' + TEXT_UP_TO_DATE + '</div>';
+          if (j.release_url) {
+            html += '<a href="' + j.release_url + '" target="_blank" rel="noopener" class="small">' + j.release_url + '</a>';
+          }
+        }
+        out.innerHTML = html;
+      })
+      .catch(function () { out.innerHTML = '<div class="alert alert-danger">Network error</div>'; });
+  });
+})();
+</script>
+
+<style>
+.form-switch.form-switch-lg .form-check-input { height: 1.6rem; width: 3.2rem; }
+.form-switch.form-switch-lg .form-check-input:checked { background-color: #198754; border-color: #198754; }
+.form-switch.form-switch-lg .form-check-label { font-weight: 500; margin-left: .6rem; vertical-align: middle; }
+#cm-tabs .nav-link { color: #495057; }
+#cm-tabs .nav-link.active { font-weight: 600; }
+</style>
+
+{{ footer }}

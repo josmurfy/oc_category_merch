@@ -1,0 +1,9 @@
+{
+  "name": "OC Category Merch Manager",
+  "description": "Dashboard and conversion-oriented category ordering with empty-category hiding, SEO-URL aware.",
+  "version": "0.3.1",
+  "author": "PhoenixLiquidation",
+  "link": "https://phoenixliquidation.ca",
+  "repository": "josmurfy/oc_category_merch",
+  "update_manifest_url": "https://phoenixliquidation.ca/dev/downloads/oc_category_merch.manifest.json"
+}
