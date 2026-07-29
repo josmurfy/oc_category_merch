@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Model\Extension\OcCategoryMerch\Module;
+namespace Opencart\Catalog\Model\Extension\CategoryMerch\Module;
 
 class CategoryMerch extends \Opencart\System\Engine\Model {
 	private array $totals = [];

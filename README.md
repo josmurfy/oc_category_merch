@@ -1,10 +1,15 @@
-# OC Category Merch Manager
+# Category Merch Manager
 
 OpenCart 4.x module to make your category menu smarter.
 
-**Version:** 0.3.1
+**Version:** 0.3.3
 **Compatibility:** OpenCart 4.x
 **Languages:** English, Français, Español
+**License:** MIT (see [LICENSE](LICENSE))
+
+> The GitHub repo keeps the `oc_category_merch` name for continuity with existing
+> installs/links, but the extension's internal code, folder and namespace were
+> renamed to `category_merch` (dropped the `oc_` prefix) in 0.3.3.
 
 ---
 
@@ -24,9 +29,9 @@ OpenCart 4.x module to make your category menu smarter.
 
 ## Installation
 
-1. Download the latest `oc_category_merch.ocmod.zip` from the [Releases](../../releases) page
+1. Download the latest `category_merch.ocmod.zip` from the [Releases](../../releases) page
 2. OpenCart Admin → **Extensions → Installer** → upload the zip
-3. Admin → **Extensions → Modules** → find *OC Category Merch Manager* → click **Install** then **Edit**
+3. Admin → **Extensions → Modules** → find *Category Merch Manager* → click **Install** then **Edit**
 4. Configure the settings and click **Save**
 
 ---
@@ -48,14 +53,17 @@ Force-show or force-hide any specific category. Overrides always win over the au
 
 ### Updates tab
 
-- **Check for updates** — queries the manifest / GitHub Releases API
-- **Install update** — downloads, verifies SHA-256, extracts over the current install
+Same UX/logic as the Debug Logger extension's Updates tab:
+
+- Auto-checks GitHub Releases as soon as the tab is opened (plus a manual **Refresh** button), 6h server-side cache
+- Shows current vs. latest version, changelog, and full **version history** (with re-install/downgrade per version)
+- **Install update** — downloads the release asset, verifies it, extracts over the current install
 
 ---
 
 ## Uninstall
 
-Admin → Extensions → Modules → **OC Category Merch Manager** → Uninstall.
+Admin → Extensions → Modules → **Category Merch Manager** → Uninstall.
 This removes the settings row and the frontend `catalog/view/common/menu/before` event.
 The extension folder can then be deleted via Extensions → Installer → Installed.
 
@@ -64,8 +72,8 @@ The extension folder can then be deleted via Extensions → Installer → Instal
 ## Architecture
 
 ```
-extension/oc_category_merch/
-├── install.json                      # Marketplace metadata + update manifest URL
+extension/category_merch/
+├── install.json                      # Marketplace metadata (code: category_merch)
 ├── admin/
 │   ├── controller/module/category_merch.php
 │   ├── model/module/category_merch.php
@@ -76,7 +84,7 @@ extension/oc_category_merch/
     └── model/module/category_merch.php
 ```
 
-Namespace: `Opencart\{Admin|Catalog}\{Controller|Model}\Extension\OcCategoryMerch\Module`.
+Namespace: `Opencart\{Admin|Catalog}\{Controller|Model}\Extension\CategoryMerch\Module`.
 
 ---
 
@@ -86,12 +94,18 @@ Repo layout mirrors the OpenCart install path exactly, so the working tree can b
 zipped directly for distribution:
 
 ```bash
-zip -r oc_category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitignore"
+zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitignore" "LICENSE" "release.sh"
 ```
 
 ---
 
 ## Changelog
+
+### 0.3.3
+- **Breaking (internal):** renamed extension folder/namespace/settings from `oc_category_merch` to `category_merch` (dropped the `oc_` prefix), matching the Debug Logger extension's convention. GitHub repo name unchanged for continuity.
+- Fix: `check_updates`/`install_update`/`overrides_url` links were built with `Url::link()`'s default HTML-escaped `&amp;`, which silently broke the query string when used inside `fetch()` — the `user_token` param was never actually received by the server, so every AJAX call looked like a logged-out request. Now generated with the JS-safe (`$js = true`) raw `&`.
+- New: Updates tab rebuilt to match Debug Logger's UX — auto-check on tab open, 6h cache, full version history with per-version changelog/downgrade.
+- Added: MIT LICENSE.
 
 ### 0.3.1
 - New: **Hide Empty Subcategories** independent toggle

@@ -49,6 +49,8 @@ $_['button_recalculate'] = 'Recalcular / Refrescar caché';
 $_['button_check_updates'] = 'Buscar actualizaciones';
 $_['button_install_update'] = 'Instalar actualización';
 $_['button_download'] = 'Descargar release';
+$_['button_view_release'] = 'Ver release';
+$_['button_refresh'] = 'Refrescar';
 
 // Actualizaciones
 $_['text_updates_intro'] = 'Este módulo puede actualizarse desde GitHub. Haga clic abajo para buscar una nueva versión.';
@@ -59,7 +61,22 @@ $_['text_update_available'] = '¡Hay una actualización disponible!';
 $_['text_repository'] = 'Repositorio';
 $_['text_no_repository'] = 'No hay repositorio GitHub configurado para este módulo.';
 $_['text_checking'] = 'Verificando...';
+$_['text_session_expired'] = 'Tu sesión de administrador ha expirado. Recarga esta página y vuelve a iniciar sesión antes de buscar actualizaciones.';
+$_['text_changelog'] = 'Registro de cambios';
+$_['text_update_source'] = 'Las actualizaciones se verifican desde GitHub:';
+$_['text_installing'] = 'Descargando e instalando la actualización...';
+$_['text_version_history'] = 'Historial de versiones';
+$_['text_version_history_hint'] = 'Haz clic en la pestaña Actualizaciones para cargar el historial de versiones.';
+$_['text_version_installed'] = 'INSTALADA';
+$_['text_version_newer'] = 'NUEVA';
+$_['text_version_downgrade'] = 'Instalar esta versión';
+$_['text_confirm_downgrade'] = '¿Seguro que quieres instalar una versión anterior? Esto sobrescribirá la versión actual.';
 
 // Errores
 $_['error_permission'] = '¡Advertencia: no tiene permiso para modificar Gestor Merch Categorías!';
 $_['error_update_check'] = 'No se pudo contactar con la API de GitHub. Inténtelo más tarde.';
+$_['error_untrusted_url'] = 'Descarga rechazada: URL no confiable.';
+$_['error_update_download'] = 'No se pudo descargar el archivo de actualización. Inténtalo más tarde.';
+$_['error_update_extract'] = 'No se pudo extraer el archivo de actualización.';
+$_['error_ext_dir_missing'] = 'Falta la carpeta de la extensión en el servidor.';
+$_['error_update_write'] = 'Algunos archivos no se pudieron escribir durante la actualización.';

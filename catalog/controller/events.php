@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Catalog\Controller\Extension\OcCategoryMerch;
+namespace Opencart\Catalog\Controller\Extension\CategoryMerch;
 
 class Events extends \Opencart\System\Engine\Controller {
 	private array $seo_map = [];
@@ -20,7 +20,7 @@ class Events extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
-		if (!(int)$this->config->get('module_oc_category_merch_status')) {
+		if (!(int)$this->config->get('module_category_merch_status')) {
 			return;
 		}
 
@@ -28,13 +28,13 @@ class Events extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
-		$hide_empty = (int)$this->config->get('module_oc_category_merch_hide_empty');
-		$hide_empty_subs = (int)$this->config->get('module_oc_category_merch_hide_empty_subs');
-		$sort_by_score = (int)$this->config->get('module_oc_category_merch_sort_by_score');
-		$cache_ttl = (int)$this->config->get('module_oc_category_merch_cache_ttl');
-		$cache_version = (int)$this->config->get('module_oc_category_merch_cache_version');
+		$hide_empty = (int)$this->config->get('module_category_merch_hide_empty');
+		$hide_empty_subs = (int)$this->config->get('module_category_merch_hide_empty_subs');
+		$sort_by_score = (int)$this->config->get('module_category_merch_sort_by_score');
+		$cache_ttl = (int)$this->config->get('module_category_merch_cache_ttl');
+		$cache_version = (int)$this->config->get('module_category_merch_cache_version');
 		$language_id = (int)$this->config->get('config_language_id');
-		$overrides = $this->config->get('module_oc_category_merch_overrides');
+		$overrides = $this->config->get('module_category_merch_overrides');
 
 		if (!is_array($overrides)) {
 			$overrides = [];
@@ -54,7 +54,7 @@ class Events extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		$this->load->model('extension/oc_category_merch/module/category_merch');
+		$this->load->model('extension/category_merch/module/category_merch');
 
 		$categories = [];
 
@@ -71,7 +71,7 @@ class Events extends \Opencart\System\Engine\Controller {
 			if (!empty($category['children']) && is_array($category['children'])) {
 				foreach ($category['children'] as $child) {
 					$child_id = $this->extractCategoryId($child['href'] ?? '');
-					$total = $child_id ? $this->model_extension_oc_category_merch_module_category_merch->getActiveSubtreeTotal($child_id) : 0;
+					$total = $child_id ? $this->model_extension_category_merch_module_category_merch->getActiveSubtreeTotal($child_id) : 0;
 					$override = $child_id && isset($overrides[$child_id]) ? (int)$overrides[$child_id] : 0;
 
 					if ($override === -1) {
@@ -98,7 +98,7 @@ class Events extends \Opencart\System\Engine\Controller {
 			}
 			unset($row);
 
-			$total = $this->model_extension_oc_category_merch_module_category_merch->getActiveSubtreeTotal($category_id);
+			$total = $this->model_extension_category_merch_module_category_merch->getActiveSubtreeTotal($category_id);
 			$override = isset($overrides[$category_id]) ? (int)$overrides[$category_id] : 0;
 
 			if ($override === -1) {
@@ -155,7 +155,7 @@ class Events extends \Opencart\System\Engine\Controller {
 		sort($ids);
 		ksort($overrides);
 
-		return 'oc_category_merch.menu.' . md5(json_encode([
+		return 'category_merch.menu.' . md5(json_encode([
 			'v' => $cache_version,
 			'lang' => $language_id,
 			'hide' => $hide_empty,

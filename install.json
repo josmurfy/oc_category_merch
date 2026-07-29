@@ -1,7 +1,8 @@
 {
-  "name": "OC Category Merch Manager",
+  "name": "Category Merch Manager",
+  "code": "category_merch",
   "description": "Dashboard and conversion-oriented category ordering with empty-category hiding, SEO-URL aware.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "PhoenixLiquidation",
   "link": "https://github.com/josmurfy/oc_category_merch",
   "repository": "josmurfy/oc_category_merch",

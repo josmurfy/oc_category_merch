@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Admin\Model\Extension\OcCategoryMerch\Module;
+namespace Opencart\Admin\Model\Extension\CategoryMerch\Module;
 
 class CategoryMerch extends \Opencart\System\Engine\Model {
 	/**
@@ -74,8 +74,8 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	 */
 	private function loadTreeRowsCached(): array {
 		$language_id = (int)$this->config->get('config_language_id');
-		$cache_version = (int)$this->config->get('module_oc_category_merch_cache_version');
-		$cache_key = 'oc_category_merch.admin.tree.' . $language_id . '.' . $cache_version;
+		$cache_version = (int)$this->config->get('module_category_merch_cache_version');
+		$cache_key = 'category_merch.admin.tree.' . $language_id . '.' . $cache_version;
 
 		$cached = $this->cache->get($cache_key);
 		if (is_array($cached) && isset($cached['expires'], $cached['rows']) && (int)$cached['expires'] >= time()) {
@@ -127,8 +127,8 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	 * Aggregated active-product counts per category subtree, cached ~5 minutes.
 	 */
 	private function getAllCategoryTotalsCached(): array {
-		$cache_version = (int)$this->config->get('module_oc_category_merch_cache_version');
-		$cache_key = 'oc_category_merch.admin.totals.' . $cache_version;
+		$cache_version = (int)$this->config->get('module_category_merch_cache_version');
+		$cache_key = 'category_merch.admin.totals.' . $cache_version;
 
 		$cached = $this->cache->get($cache_key);
 		if (is_array($cached) && isset($cached['expires'], $cached['totals']) && (int)$cached['expires'] >= time()) {

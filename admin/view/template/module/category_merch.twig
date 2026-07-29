@@ -35,14 +35,14 @@
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-updates" type="button" role="tab">
+        <button class="nav-link" id="cm-tab-updates-link" data-bs-toggle="tab" data-bs-target="#tab-updates" type="button" role="tab">
           <i class="fa-brands fa-github"></i> {{ tab_updates }}
         </button>
       </li>
     </ul>
 
     <form id="form-module" action="{{ save }}" method="post" data-oc-toggle="ajax">
-      <input type="hidden" id="overrides_json" name="overrides_json" value="{{ module_oc_category_merch_overrides|json_encode|escape('html_attr') }}" />
+      <input type="hidden" id="overrides_json" name="overrides_json" value="{{ module_category_merch_overrides|json_encode|escape('html_attr') }}" />
 
       <div class="tab-content border border-top-0 p-4 bg-white">
 
@@ -57,10 +57,10 @@
                   <label class="col-sm-3 col-form-label">{{ entry_status }}</label>
                   <div class="col-sm-9">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="module_oc_category_merch_status" value="0" />
-                      <input class="form-check-input" type="checkbox" role="switch" id="sw-status" name="module_oc_category_merch_status" value="1"{% if module_oc_category_merch_status %} checked{% endif %} />
+                      <input type="hidden" name="module_category_merch_status" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-status" name="module_category_merch_status" value="1"{% if module_category_merch_status %} checked{% endif %} />
                       <label class="form-check-label" for="sw-status" id="lbl-status">
-                        {% if module_oc_category_merch_status %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                        {% if module_category_merch_status %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
                       </label>
                     </div>
                   </div>
@@ -70,10 +70,10 @@
                   <label class="col-sm-3 col-form-label">{{ entry_hide_empty }}</label>
                   <div class="col-sm-9">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="module_oc_category_merch_hide_empty" value="0" />
-                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty" name="module_oc_category_merch_hide_empty" value="1"{% if module_oc_category_merch_hide_empty %} checked{% endif %} />
+                      <input type="hidden" name="module_category_merch_hide_empty" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty" name="module_category_merch_hide_empty" value="1"{% if module_category_merch_hide_empty %} checked{% endif %} />
                       <label class="form-check-label" for="sw-hide-empty" id="lbl-hide-empty">
-                        {% if module_oc_category_merch_hide_empty %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                        {% if module_category_merch_hide_empty %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
                       </label>
                     </div>
                     <div class="form-text">{{ help_hide_empty }}</div>
@@ -84,10 +84,10 @@
                   <label class="col-sm-3 col-form-label">{{ entry_hide_empty_subs }}</label>
                   <div class="col-sm-9">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="module_oc_category_merch_hide_empty_subs" value="0" />
-                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty-subs" name="module_oc_category_merch_hide_empty_subs" value="1"{% if module_oc_category_merch_hide_empty_subs %} checked{% endif %} />
+                      <input type="hidden" name="module_category_merch_hide_empty_subs" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-hide-empty-subs" name="module_category_merch_hide_empty_subs" value="1"{% if module_category_merch_hide_empty_subs %} checked{% endif %} />
                       <label class="form-check-label" for="sw-hide-empty-subs" id="lbl-hide-empty-subs">
-                        {% if module_oc_category_merch_hide_empty_subs %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                        {% if module_category_merch_hide_empty_subs %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
                       </label>
                     </div>
                     <div class="form-text">{{ help_hide_empty_subs }}</div>
@@ -98,10 +98,10 @@
                   <label class="col-sm-3 col-form-label">{{ entry_sort_by_score }}</label>
                   <div class="col-sm-9">
                     <div class="form-check form-switch form-switch-lg">
-                      <input type="hidden" name="module_oc_category_merch_sort_by_score" value="0" />
-                      <input class="form-check-input" type="checkbox" role="switch" id="sw-sort" name="module_oc_category_merch_sort_by_score" value="1"{% if module_oc_category_merch_sort_by_score %} checked{% endif %} />
+                      <input type="hidden" name="module_category_merch_sort_by_score" value="0" />
+                      <input class="form-check-input" type="checkbox" role="switch" id="sw-sort" name="module_category_merch_sort_by_score" value="1"{% if module_category_merch_sort_by_score %} checked{% endif %} />
                       <label class="form-check-label" for="sw-sort" id="lbl-sort">
-                        {% if module_oc_category_merch_sort_by_score %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
+                        {% if module_category_merch_sort_by_score %}{{ text_enabled }}{% else %}{{ text_disabled }}{% endif %}
                       </label>
                     </div>
                     <div class="form-text">{{ help_sort_by_score }}</div>
@@ -111,14 +111,14 @@
                 <div class="row mb-3">
                   <label class="col-sm-3 col-form-label">{{ entry_weight_volume }}</label>
                   <div class="col-sm-9">
-                    <input type="number" name="module_oc_category_merch_weight_volume" min="0" max="100" value="{{ module_oc_category_merch_weight_volume }}" class="form-control" />
+                    <input type="number" name="module_category_merch_weight_volume" min="0" max="100" value="{{ module_category_merch_weight_volume }}" class="form-control" />
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label class="col-sm-3 col-form-label">{{ entry_cache_ttl }}</label>
                   <div class="col-sm-9">
-                    <input type="number" name="module_oc_category_merch_cache_ttl" min="30" max="86400" value="{{ module_oc_category_merch_cache_ttl }}" class="form-control" />
+                    <input type="number" name="module_category_merch_cache_ttl" min="30" max="86400" value="{{ module_category_merch_cache_ttl }}" class="form-control" />
                     <div class="form-text">{{ help_cache_ttl }}</div>
                   </div>
                 </div>
@@ -212,7 +212,7 @@
               <tbody id="ovr-tbody">
                 {% if dashboard_tree %}
                   {% for row in dashboard_tree %}
-                    {% set mode = module_oc_category_merch_overrides[row.category_id] is defined ? module_oc_category_merch_overrides[row.category_id] : 0 %}
+                    {% set mode = module_category_merch_overrides[row.category_id] is defined ? module_category_merch_overrides[row.category_id] : 0 %}
                     <tr>
                       <td>
                         {% if row.level > 0 %}{% for i in 1..row.level %}&nbsp;&nbsp;&nbsp;{% endfor %}{% endif %}
@@ -259,26 +259,62 @@
 
         {# ============ TAB: UPDATES ============ #}
         <div class="tab-pane fade" id="tab-updates" role="tabpanel">
-          <p>{{ text_updates_intro }}</p>
-          <dl class="row">
-            <dt class="col-sm-3">{{ text_current_version }}</dt>
-            <dd class="col-sm-9"><span class="badge bg-primary">v{{ module_version }}</span></dd>
-            <dt class="col-sm-3">{{ text_repository }}</dt>
-            <dd class="col-sm-9">
-              {% if module_repository %}
-                <a href="https://github.com/{{ module_repository }}" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> {{ module_repository }}</a>
-              {% else %}
-                <em class="text-muted">{{ text_no_repository }}</em>
-              {% endif %}
-            </dd>
-          </dl>
-          <button type="button" id="btn-check-updates" class="btn btn-secondary">
-            <i class="fa-solid fa-arrows-rotate"></i> {{ button_check_updates }}
-          </button>
-          <button type="button" id="btn-install-update" class="btn btn-primary ms-2" style="display:none">
-            <i class="fa-solid fa-download"></i> {{ button_install_update }}
-          </button>
-          <div id="update-result" class="mt-3"></div>
+          {% if not module_repository %}
+            <em class="text-muted">{{ text_no_repository }}</em>
+          {% else %}
+            <div class="row mb-3">
+              <label class="col-sm-3 col-form-label">{{ text_current_version }}</label>
+              <div class="col-sm-9">
+                <span class="badge bg-primary fs-6">v{{ module_version }}</span>
+              </div>
+            </div>
+            <div id="cm-update-result" class="d-none">
+              <div class="row mb-3">
+                <label class="col-sm-3 col-form-label">{{ text_latest_version }}</label>
+                <div class="col-sm-9">
+                  <span id="cm-latest-badge" class="badge fs-6"></span>
+                </div>
+              </div>
+              <div id="cm-update-available" class="d-none">
+                <div class="alert alert-success">
+                  <i class="fa-solid fa-circle-up"></i> {{ text_update_available }}
+                  <button type="button" class="btn btn-sm btn-success ms-2" id="cm-install-update"><i class="fa-solid fa-download"></i> {{ button_install_update }}</button>
+                  <a id="cm-release-link" href="#" class="btn btn-sm btn-outline-secondary ms-1" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> {{ button_view_release }}</a>
+                </div>
+                <div id="cm-install-progress" class="d-none">
+                  <div class="d-flex align-items-center gap-2 text-muted mb-2"><i class="fa-solid fa-spinner fa-spin"></i> {{ text_installing }}</div>
+                </div>
+                <div id="cm-install-success" class="d-none">
+                  <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i> <span id="cm-install-success-msg"></span></div>
+                </div>
+                <div id="cm-install-error" class="d-none">
+                  <div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> <span id="cm-install-error-msg"></span></div>
+                </div>
+              </div>
+              <div id="cm-update-current" class="d-none">
+                <div class="alert alert-info"><i class="fa-solid fa-circle-check"></i> {{ text_up_to_date }}</div>
+              </div>
+              <div id="cm-changelog-section" class="d-none">
+                <h6><i class="fa-solid fa-scroll"></i> {{ text_changelog }}</h6>
+                <div id="cm-changelog-body" class="border rounded p-3 bg-light" style="white-space:pre-wrap;font-size:.85rem;max-height:300px;overflow-y:auto"></div>
+              </div>
+            </div>
+            <div id="cm-update-loading" class="d-none">
+              <div class="d-flex align-items-center gap-2 text-muted"><i class="fa-solid fa-spinner fa-spin"></i> {{ text_checking }}</div>
+            </div>
+            <div id="cm-update-error" class="d-none">
+              <div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> <span id="cm-update-error-msg"></span></div>
+            </div>
+            <hr>
+            <h6><i class="fa-solid fa-clock-rotate-left"></i> {{ text_version_history }}</h6>
+            <div id="cm-version-history">
+              <div class="text-muted small">{{ text_version_history_hint }}</div>
+            </div>
+            <div class="mt-3">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="cm-check-update"><i class="fa-solid fa-arrows-rotate"></i> {{ button_refresh }}</button>
+            </div>
+            <div class="form-text mt-2">{{ text_update_source }} <a href="https://github.com/{{ module_repository }}" target="_blank" rel="noopener" class="text-decoration-none"><i class="fa-brands fa-github"></i> {{ module_repository }}</a></div>
+          {% endif %}
         </div>
 
       </div>
@@ -450,65 +486,176 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
   });
 })();
 
-// ---- Update checker ----
+// ---- Update checker (same UX/logic as Debug Logger's Updates tab) ----
 (function () {
-  var btn = document.getElementById('btn-check-updates');
-  var out = document.getElementById('update-result');
-  if (!btn) return;
+  var checkBtn = document.getElementById('cm-check-update');
+  var tabLink = document.getElementById('cm-tab-updates-link');
+  if (!checkBtn || !tabLink) return;
 
-  var TEXT_CHECKING = {{ text_checking|json_encode|raw }};
-  var TEXT_UP_TO_DATE = {{ text_up_to_date|json_encode|raw }};
-  var TEXT_UPDATE_AVAILABLE = {{ text_update_available|json_encode|raw }};
-  var TEXT_LATEST = {{ text_latest_version|json_encode|raw }};
-  var BUTTON_DOWNLOAD = {{ button_download|json_encode|raw }};
+  var TEXT_SESSION_EXPIRED = {{ text_session_expired|json_encode|raw }};
+  var TEXT_VERSION_INSTALLED = {{ text_version_installed|json_encode|raw }};
+  var TEXT_VERSION_NEWER = {{ text_version_newer|json_encode|raw }};
+  var TEXT_VERSION_DOWNGRADE = {{ text_version_downgrade|json_encode|raw }};
+  var TEXT_CONFIRM_DOWNGRADE = {{ text_confirm_downgrade|json_encode|raw }};
+  var BUTTON_VIEW_RELEASE = {{ button_view_release|json_encode|raw }};
   var URL_CHECK = {{ check_updates|json_encode|raw }};
   var URL_INSTALL = {{ install_update|json_encode|raw }};
-  window.BUTTON_INSTALL_UPDATE = {{ button_install_update|json_encode|raw }};
 
-  btn.addEventListener('click', function () {
-    out.innerHTML = '<div class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> ' + TEXT_CHECKING + '</div>';
+  var cmDownloadUrl = '';
+  var cmChecked = false;
+
+  // A stale/expired admin session makes OpenCart return the login page
+  // (real HTML, HTTP 200) instead of JSON. Detect that case explicitly so
+  // we never try to render raw HTML as JSON.
+  function parseJsonOrThrow(t) {
+    try {
+      return JSON.parse(t);
+    } catch (e) {
+      if (/^\s*</.test(t)) {
+        throw new Error(TEXT_SESSION_EXPIRED);
+      }
+      throw new Error('Invalid JSON: ' + t.substring(0, 200));
+    }
+  }
+
+  function cmEscHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function cmFormatDate(iso) { try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return iso; } }
+  function cmVersionCompare(a, b) {
+    var pa = String(a).split('.'), pb = String(b).split('.');
+    for (var i = 0; i < 3; i++) {
+      var na = parseInt(pa[i] || '0', 10), nb = parseInt(pb[i] || '0', 10);
+      if (na > nb) return 1;
+      if (na < nb) return -1;
+    }
+    return 0;
+  }
+
+  function cmRenderVersionHistory(versions, currentVersion) {
+    var container = document.getElementById('cm-version-history');
+    var html = '<div class="list-group list-group-flush">';
+    versions.forEach(function (v) {
+      var isCurrent = v.version === currentVersion;
+      var isNewer = cmVersionCompare(v.version, currentVersion) > 0;
+      var badgeClass = isCurrent ? 'bg-primary' : (isNewer ? 'bg-success' : 'bg-secondary');
+      var badgeLabel = isCurrent ? TEXT_VERSION_INSTALLED : (isNewer ? TEXT_VERSION_NEWER : '');
+
+      html += '<div class="list-group-item' + (isCurrent ? ' list-group-item-primary' : '') + '">';
+      html += '<div class="d-flex justify-content-between align-items-center">';
+      html += '<div><strong>v' + cmEscHtml(v.version) + '</strong> ';
+      if (badgeLabel) html += '<span class="badge ' + badgeClass + ' ms-1" style="font-size:.7em">' + badgeLabel + '</span>';
+      if (v.published_at) html += ' <small class="text-muted ms-2">' + cmFormatDate(v.published_at) + '</small>';
+      html += '</div><div>';
+      if (v.html_url) html += '<a href="' + cmEscHtml(v.html_url) + '" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm me-1" title="' + BUTTON_VIEW_RELEASE + '"><i class="fa-brands fa-github"></i></a>';
+      if (v.download_url && !isCurrent && !isNewer) html += '<button type="button" class="btn btn-outline-warning btn-sm cm-install-version" data-url="' + cmEscHtml(v.download_url) + '" title="' + TEXT_VERSION_DOWNGRADE + '"><i class="fa-solid fa-download"></i></button>';
+      html += '</div></div>';
+      if (v.changelog) html += '<div class="mt-1 small text-muted" style="white-space:pre-wrap;max-height:80px;overflow-y:auto">' + cmEscHtml(v.changelog) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+
+    container.querySelectorAll('.cm-install-version').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm(TEXT_CONFIRM_DOWNGRADE)) return;
+        cmDownloadUrl = this.getAttribute('data-url');
+        document.getElementById('cm-install-update').click();
+      });
+    });
+  }
+
+  function cmCheckUpdate() {
+    var loading = document.getElementById('cm-update-loading');
+    var result = document.getElementById('cm-update-result');
+    var errorDiv = document.getElementById('cm-update-error');
+    result.classList.add('d-none');
+    errorDiv.classList.add('d-none');
+    document.getElementById('cm-install-success').classList.add('d-none');
+    document.getElementById('cm-install-error').classList.add('d-none');
+    loading.classList.remove('d-none');
+
     fetch(URL_CHECK, {
       credentials: 'same-origin',
       headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
-      .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error('Invalid JSON: ' + t.substring(0, 200)); } }); })
-      .then(function (j) {
-        if (j.error) { out.innerHTML = '<div class="alert alert-warning">' + j.error + '</div>'; return; }
-        var html = '';
-        if (j.update_available) {
-          html += '<div class="alert alert-success"><strong><i class="fa-solid fa-arrow-up"></i> ' + TEXT_UPDATE_AVAILABLE + '</strong><br>' +
-                  TEXT_LATEST + ' : <span class="badge bg-success">v' + (j.latest_version || '') + '</span></div>';
-          if (j.download_url) {
-            html += '<a href="' + j.download_url + '" target="_blank" rel="noopener" class="btn btn-success me-2"><i class="fa-solid fa-download"></i> ' + BUTTON_DOWNLOAD + '</a>';
-            html += '<button type="button" class="btn btn-primary" id="btn-do-install" data-url="' + j.download_url + '"><i class="fa-solid fa-bolt"></i> ' + (window.BUTTON_INSTALL_UPDATE || 'Install update') + '</button>';
+      .then(function (r) { return r.text().then(parseJsonOrThrow); })
+      .then(function (json) {
+        loading.classList.add('d-none');
+        cmChecked = true;
+        if (json.error) {
+          errorDiv.classList.remove('d-none');
+          document.getElementById('cm-update-error-msg').textContent = json.error;
+          return;
+        }
+        result.classList.remove('d-none');
+        var badge = document.getElementById('cm-latest-badge');
+        badge.textContent = 'v' + json.latest_version;
+        badge.className = 'badge fs-6 ' + (json.has_update ? 'bg-success' : 'bg-info');
+        if (json.has_update) {
+          document.getElementById('cm-update-available').classList.remove('d-none');
+          document.getElementById('cm-update-current').classList.add('d-none');
+          cmDownloadUrl = json.download_url || '';
+          if (json.html_url) document.getElementById('cm-release-link').href = json.html_url;
+          if (tabLink && !tabLink.querySelector('.badge')) {
+            tabLink.insertAdjacentHTML('beforeend', ' <span class="badge bg-success rounded-pill">' + TEXT_VERSION_NEWER + '</span>');
           }
         } else {
-          html += '<div class="alert alert-info"><i class="fa-solid fa-check"></i> ' + TEXT_UP_TO_DATE + '</div>';
-          if (j.release_url) {
-            html += '<a href="' + j.release_url + '" target="_blank" rel="noopener" class="small">' + j.release_url + '</a>';
-          }
+          document.getElementById('cm-update-available').classList.add('d-none');
+          document.getElementById('cm-update-current').classList.remove('d-none');
         }
-        out.innerHTML = html;
-        var doInstall = document.getElementById('btn-do-install');
-        if (doInstall) {
-          doInstall.addEventListener('click', function () {
-            doInstall.disabled = true;
-            doInstall.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
-            var u = URL_INSTALL + '&download_url=' + encodeURIComponent(doInstall.getAttribute('data-url'));
-            fetch(u, {
-              credentials: 'same-origin',
-              headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-            })
-              .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error(t.substring(0, 200)); } }); })
-              .then(function (j2) {
-                if (j2.error) { out.innerHTML += '<div class="alert alert-danger mt-2">' + (j2.message || 'Update failed') + '</div>'; return; }
-                out.innerHTML = '<div class="alert alert-success"><i class="fa-solid fa-check"></i> Update installed (v' + (j2.new_version || '?') + ', ' + (j2.copied || 0) + ' files). Reload the page.</div>';
-              })
-              .catch(function (e) { out.innerHTML += '<div class="alert alert-danger mt-2">' + (e.message || 'Install failed') + '</div>'; });
-          });
+        if (json.changelog) {
+          document.getElementById('cm-changelog-section').classList.remove('d-none');
+          document.getElementById('cm-changelog-body').textContent = json.changelog;
+        }
+        if (json.versions && json.versions.length) {
+          cmRenderVersionHistory(json.versions, json.current_version);
         }
       })
-      .catch(function (e) { out.innerHTML = '<div class="alert alert-danger">' + (e.message || 'Network error') + '</div>'; });
+      .catch(function (e) {
+        loading.classList.add('d-none');
+        errorDiv.classList.remove('d-none');
+        document.getElementById('cm-update-error-msg').textContent = e.message || 'Network error';
+      });
+  }
+
+  // Auto-check on Updates tab activation
+  tabLink.addEventListener('shown.bs.tab', function () {
+    if (!cmChecked) cmCheckUpdate();
+  });
+
+  // Manual refresh button
+  checkBtn.addEventListener('click', cmCheckUpdate);
+
+  // Install update
+  document.getElementById('cm-install-update').addEventListener('click', function () {
+    if (!cmDownloadUrl) return;
+    var btn = this;
+    btn.disabled = true;
+    document.getElementById('cm-install-progress').classList.remove('d-none');
+    document.getElementById('cm-install-success').classList.add('d-none');
+    document.getElementById('cm-install-error').classList.add('d-none');
+
+    fetch(URL_INSTALL + '&download_url=' + encodeURIComponent(cmDownloadUrl), {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+      .then(function (r) { return r.text().then(parseJsonOrThrow); })
+      .then(function (json) {
+        document.getElementById('cm-install-progress').classList.add('d-none');
+        if (json.error) {
+          document.getElementById('cm-install-error').classList.remove('d-none');
+          document.getElementById('cm-install-error-msg').textContent = json.message || 'Install error';
+          btn.disabled = false;
+          return;
+        }
+        document.getElementById('cm-install-success').classList.remove('d-none');
+        document.getElementById('cm-install-success-msg').textContent = 'v' + (json.new_version || '?') + ' (' + (json.copied || 0) + ' files). Reload the page.';
+      })
+      .catch(function (e) {
+        document.getElementById('cm-install-progress').classList.add('d-none');
+        document.getElementById('cm-install-error').classList.remove('d-none');
+        document.getElementById('cm-install-error-msg').textContent = e.message || 'Install failed';
+        btn.disabled = false;
+      });
   });
 })();
 </script>

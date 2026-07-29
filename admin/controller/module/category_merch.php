@@ -1,11 +1,11 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\OcCategoryMerch\Module;
+namespace Opencart\Admin\Controller\Extension\CategoryMerch\Module;
 
 class CategoryMerch extends \Opencart\System\Engine\Controller {
 	private array $error = [];
 
 	public function index(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$data['breadcrumbs'] = [];
@@ -19,40 +19,45 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		];
 		$data['breadcrumbs'][] = [
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/oc_category_merch/module/category_merch', 'user_token=' . $this->session->data['user_token'])
+			'href' => $this->url->link('extension/category_merch/module/category_merch', 'user_token=' . $this->session->data['user_token'])
 		];
 
-		$data['save'] = $this->url->link('extension/oc_category_merch/module/category_merch.save', 'user_token=' . $this->session->data['user_token']);
-		$data['recalculate'] = $this->url->link('extension/oc_category_merch/module/category_merch.recalculate', 'user_token=' . $this->session->data['user_token']);
-		$data['check_updates'] = $this->url->link('extension/oc_category_merch/module/category_merch.checkUpdates', 'user_token=' . $this->session->data['user_token']);
-		$data['install_update'] = $this->url->link('extension/oc_category_merch/module/category_merch.installUpdate', 'user_token=' . $this->session->data['user_token']);
-		$data['overrides_url'] = $this->url->link('extension/oc_category_merch/module/category_merch.overrides', 'user_token=' . $this->session->data['user_token']);
+		$data['save'] = $this->url->link('extension/category_merch/module/category_merch.save', 'user_token=' . $this->session->data['user_token']);
+		$data['recalculate'] = $this->url->link('extension/category_merch/module/category_merch.recalculate', 'user_token=' . $this->session->data['user_token']);
+		// $js=true (3rd arg): these three are consumed by fetch() in JS and must keep a
+		// literal "&" between params. The default link() output HTML-escapes "&" to
+		// "&amp;" for safe use in href/action attributes, which silently breaks the
+		// query string when used as-is in a JS URL (user_token ends up concatenated
+		// into a bogus "amp;user_token" key server-side, so it's never seen as logged in).
+		$data['check_updates'] = $this->url->link('extension/category_merch/module/category_merch.checkUpdates', 'user_token=' . $this->session->data['user_token'] . '&flush=1', true);
+		$data['install_update'] = $this->url->link('extension/category_merch/module/category_merch.installUpdate', 'user_token=' . $this->session->data['user_token'], true);
+		$data['overrides_url'] = $this->url->link('extension/category_merch/module/category_merch.overrides', 'user_token=' . $this->session->data['user_token'], true);
 		$data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module');
 
-		$data['module_oc_category_merch_status'] = (int)$this->config->get('module_oc_category_merch_status');
-		$data['module_oc_category_merch_hide_empty'] = (int)$this->config->get('module_oc_category_merch_hide_empty');
-		$data['module_oc_category_merch_hide_empty_subs'] = (int)$this->config->get('module_oc_category_merch_hide_empty_subs');
-		$data['module_oc_category_merch_sort_by_score'] = (int)$this->config->get('module_oc_category_merch_sort_by_score');
-		$data['module_oc_category_merch_weight_volume'] = (int)$this->config->get('module_oc_category_merch_weight_volume');
-		$data['module_oc_category_merch_cache_ttl'] = (int)$this->config->get('module_oc_category_merch_cache_ttl');
-		$data['module_oc_category_merch_overrides'] = $this->config->get('module_oc_category_merch_overrides');
+		$data['module_category_merch_status'] = (int)$this->config->get('module_category_merch_status');
+		$data['module_category_merch_hide_empty'] = (int)$this->config->get('module_category_merch_hide_empty');
+		$data['module_category_merch_hide_empty_subs'] = (int)$this->config->get('module_category_merch_hide_empty_subs');
+		$data['module_category_merch_sort_by_score'] = (int)$this->config->get('module_category_merch_sort_by_score');
+		$data['module_category_merch_weight_volume'] = (int)$this->config->get('module_category_merch_weight_volume');
+		$data['module_category_merch_cache_ttl'] = (int)$this->config->get('module_category_merch_cache_ttl');
+		$data['module_category_merch_overrides'] = $this->config->get('module_category_merch_overrides');
 
-		if (!is_array($data['module_oc_category_merch_overrides'])) {
-			$data['module_oc_category_merch_overrides'] = [];
+		if (!is_array($data['module_category_merch_overrides'])) {
+			$data['module_category_merch_overrides'] = [];
 		}
 
-		if (!$data['module_oc_category_merch_weight_volume']) {
-			$data['module_oc_category_merch_weight_volume'] = 100;
+		if (!$data['module_category_merch_weight_volume']) {
+			$data['module_category_merch_weight_volume'] = 100;
 		}
 
-		if ($data['module_oc_category_merch_cache_ttl'] <= 0) {
-			$data['module_oc_category_merch_cache_ttl'] = 300;
+		if ($data['module_category_merch_cache_ttl'] <= 0) {
+			$data['module_category_merch_cache_ttl'] = 300;
 		}
 
-		$this->load->model('extension/oc_category_merch/module/category_merch');
-		$data['dashboard_rows'] = $this->model_extension_oc_category_merch_module_category_merch->getTopCategoriesWithScore();
+		$this->load->model('extension/category_merch/module/category_merch');
+		$data['dashboard_rows'] = $this->model_extension_category_merch_module_category_merch->getTopCategoriesWithScore();
 
-		$tree_page = $this->model_extension_oc_category_merch_module_category_merch->getCategoryTreeWithScore('', 300, 0);
+		$tree_page = $this->model_extension_category_merch_module_category_merch->getCategoryTreeWithScore('', 300, 0);
 		$data['dashboard_tree'] = $tree_page['rows'];
 		$data['dashboard_tree_total'] = (int)$tree_page['total'];
 		$data['dashboard_tree_page_size'] = 300;
@@ -102,6 +107,8 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['button_check_updates'] = $this->language->get('button_check_updates');
 		$data['button_install_update'] = $this->language->get('button_install_update');
 		$data['button_download'] = $this->language->get('button_download');
+		$data['button_view_release'] = $this->language->get('button_view_release');
+		$data['button_refresh'] = $this->language->get('button_refresh');
 		$data['column_name'] = $this->language->get('column_name');
 		$data['column_total'] = $this->language->get('column_total');
 		$data['column_score'] = $this->language->get('column_score');
@@ -115,6 +122,16 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['text_repository'] = $this->language->get('text_repository');
 		$data['text_no_repository'] = $this->language->get('text_no_repository');
 		$data['text_checking'] = $this->language->get('text_checking');
+		$data['text_session_expired'] = $this->language->get('text_session_expired');
+		$data['text_changelog'] = $this->language->get('text_changelog');
+		$data['text_update_source'] = $this->language->get('text_update_source');
+		$data['text_installing'] = $this->language->get('text_installing');
+		$data['text_version_history'] = $this->language->get('text_version_history');
+		$data['text_version_history_hint'] = $this->language->get('text_version_history_hint');
+		$data['text_version_installed'] = $this->language->get('text_version_installed');
+		$data['text_version_newer'] = $this->language->get('text_version_newer');
+		$data['text_version_downgrade'] = $this->language->get('text_version_downgrade');
+		$data['text_confirm_downgrade'] = $this->language->get('text_confirm_downgrade');
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_edit'] = $this->language->get('text_edit');
 
@@ -122,15 +139,15 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('extension/oc_category_merch/module/category_merch', $data));
+		$this->response->setOutput($this->load->view('extension/category_merch/module/category_merch', $data));
 	}
 
 	public function save(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 
 		$json = [];
 
-		if (!$this->user->hasPermission('modify', 'extension/oc_category_merch/module/category_merch')) {
+		if (!$this->user->hasPermission('modify', 'extension/category_merch/module/category_merch')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
@@ -146,7 +163,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 					$overrides = $decoded;
 				}
 			} else {
-				$overrides = $this->request->post['module_oc_category_merch_overrides'] ?? [];
+				$overrides = $this->request->post['module_category_merch_overrides'] ?? [];
 				if (!is_array($overrides)) {
 					$overrides = [];
 				}
@@ -174,15 +191,15 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			}
 
 			$post = [
-				'module_oc_category_merch_status' => (int)($this->request->post['module_oc_category_merch_status'] ?? 0),
-				'module_oc_category_merch_hide_empty' => (int)($this->request->post['module_oc_category_merch_hide_empty'] ?? 0),					'module_oc_category_merch_hide_empty_subs' => (int)($this->request->post['module_oc_category_merch_hide_empty_subs'] ?? 0),				'module_oc_category_merch_sort_by_score' => (int)($this->request->post['module_oc_category_merch_sort_by_score'] ?? 0),
-				'module_oc_category_merch_weight_volume' => max(0, min(100, (int)($this->request->post['module_oc_category_merch_weight_volume'] ?? 100))),
-				'module_oc_category_merch_cache_ttl' => max(30, min(86400, (int)($this->request->post['module_oc_category_merch_cache_ttl'] ?? 300))),
-				'module_oc_category_merch_overrides' => $clean_overrides,
-				'module_oc_category_merch_cache_version' => (int)$this->config->get('module_oc_category_merch_cache_version') + 1
+				'module_category_merch_status' => (int)($this->request->post['module_category_merch_status'] ?? 0),
+				'module_category_merch_hide_empty' => (int)($this->request->post['module_category_merch_hide_empty'] ?? 0),					'module_category_merch_hide_empty_subs' => (int)($this->request->post['module_category_merch_hide_empty_subs'] ?? 0),				'module_category_merch_sort_by_score' => (int)($this->request->post['module_category_merch_sort_by_score'] ?? 0),
+				'module_category_merch_weight_volume' => max(0, min(100, (int)($this->request->post['module_category_merch_weight_volume'] ?? 100))),
+				'module_category_merch_cache_ttl' => max(30, min(86400, (int)($this->request->post['module_category_merch_cache_ttl'] ?? 300))),
+				'module_category_merch_overrides' => $clean_overrides,
+				'module_category_merch_cache_version' => (int)$this->config->get('module_category_merch_cache_version') + 1
 			];
 
-			$this->model_setting_setting->editSetting('module_oc_category_merch', $post);
+			$this->model_setting_setting->editSetting('module_category_merch', $post);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -192,21 +209,21 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 	}
 
 	public function recalculate(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 
 		$json = [];
 
-		if (!$this->user->hasPermission('modify', 'extension/oc_category_merch/module/category_merch')) {
+		if (!$this->user->hasPermission('modify', 'extension/category_merch/module/category_merch')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
 		if (!$json) {
 			$this->load->model('setting/setting');
 
-			$current = $this->model_setting_setting->getSetting('module_oc_category_merch');
-			$current['module_oc_category_merch_cache_version'] = (int)($current['module_oc_category_merch_cache_version'] ?? 0) + 1;
+			$current = $this->model_setting_setting->getSetting('module_category_merch');
+			$current['module_category_merch_cache_version'] = (int)($current['module_category_merch_cache_version'] ?? 0) + 1;
 
-			$this->model_setting_setting->editSetting('module_oc_category_merch', $current);
+			$this->model_setting_setting->editSetting('module_category_merch', $current);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -216,108 +233,138 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 	}
 
 	public function checkUpdates(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 		$this->response->addHeader('Content-Type: application/json');
 
-		$json = [];
+		// Any stray warning/notice printed by the logic below would otherwise
+		// break JSON.parse() on the client ("Invalid JSON: ..."); buffer it so
+		// a clean JSON payload is guaranteed no matter what happens inside.
+		ob_start();
 
-		if (!$this->user->hasPermission('modify', 'extension/oc_category_merch/module/category_merch')) {
-			$json['error'] = $this->language->get('error_permission');
-			$this->response->setOutput(json_encode($json));
-			return;
+		try {
+			$json = $this->buildCheckUpdatesJson();
+		} catch (\Throwable $e) {
+			error_log('[category_merch] checkUpdates(): ' . $e->getMessage());
+			$json = ['error' => $this->language->get('error_update_check')];
 		}
 
-		$meta = $this->readManifest();
-		$current_version = (string)($meta['version'] ?? '0.0.0');
-		$manifest_url = trim((string)($meta['update_manifest_url'] ?? ''));
-		$repo = trim((string)($meta['repository'] ?? ''));
-
-		$json['current_version'] = $current_version;
-
-		// Prefer static manifest URL (simpler, no GitHub required)
-		if ($manifest_url !== '' && preg_match('#^https://#i', $manifest_url)) {
-			$body = $this->httpGet($manifest_url, ['Accept: application/json']);
-
-			if ($body === null) {
-				$json['error'] = $this->language->get('error_update_check');
-				$this->response->setOutput(json_encode($json));
-				return;
-			}
-
-			$manifest = json_decode($body, true);
-
-			if (!is_array($manifest) || empty($manifest['version']) || empty($manifest['download_url'])) {
-				$json['error'] = $this->language->get('error_update_check');
-				$this->response->setOutput(json_encode($json));
-				return;
-			}
-
-			$latest_version = ltrim((string)$manifest['version'], 'vV');
-			$download_url = (string)$manifest['download_url'];
-
-			$json['latest_version'] = $latest_version;
-			$json['download_url'] = $download_url;
-			$json['release_url'] = (string)($manifest['release_url'] ?? '');
-			$json['notes'] = (string)($manifest['notes'] ?? '');
-			$json['update_available'] = version_compare($latest_version, $current_version, '>');
-
-			$this->response->setOutput(json_encode($json));
-			return;
-		}
-
-		// Fallback: GitHub Releases
-		if ($repo === '' || !preg_match('#^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$#', $repo)) {
-			$json['error'] = $this->language->get('text_no_repository');
-			$this->response->setOutput(json_encode($json));
-			return;
-		}
-
-		$body = $this->httpGet('https://api.github.com/repos/' . $repo . '/releases/latest', ['Accept: application/vnd.github+json']);
-
-		if ($body === null) {
-			$json['error'] = $this->language->get('error_update_check');
-			$this->response->setOutput(json_encode($json));
-			return;
-		}
-
-		$release = json_decode($body, true);
-
-		if (!is_array($release)) {
-			$json['error'] = $this->language->get('error_update_check');
-			$this->response->setOutput(json_encode($json));
-			return;
-		}
-
-		$tag = (string)($release['tag_name'] ?? '');
-		$latest_version = ltrim($tag, 'vV');
-		$download_url = '';
-
-		if (!empty($release['assets']) && is_array($release['assets'])) {
-			foreach ($release['assets'] as $asset) {
-				if (!empty($asset['browser_download_url']) && str_ends_with((string)$asset['name'], '.ocmod.zip')) {
-					$download_url = (string)$asset['browser_download_url'];
-					break;
-				}
-			}
-		}
-
-		if ($download_url === '' && !empty($release['zipball_url'])) {
-			$download_url = (string)$release['zipball_url'];
-		}
-
-		$json['latest_version'] = $latest_version;
-		$json['download_url'] = $download_url;
-		$json['release_url'] = (string)($release['html_url'] ?? '');
-		$json['update_available'] = $latest_version !== '' ? version_compare($latest_version, $current_version, '>') : false;
+		ob_end_clean();
 
 		$this->response->setOutput(json_encode($json));
 	}
 
+	private function buildCheckUpdatesJson(): array {
+		if (!$this->user->hasPermission('modify', 'extension/category_merch/module/category_merch')) {
+			return ['error' => $this->language->get('error_permission')];
+		}
+
+		$meta = $this->readManifest();
+		$current_version = (string)($meta['version'] ?? '0.0.0');
+		$repo = trim((string)($meta['repository'] ?? ''));
+
+		if ($repo === '' || !preg_match('#^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$#', $repo)) {
+			return ['current_version' => $current_version, 'error' => $this->language->get('text_no_repository')];
+		}
+
+		$cache_key = 'module_category_merch_update_cache';
+		$cache_ts_key = 'module_category_merch_update_cache_ts';
+		$flush = !empty($this->request->get['flush']);
+
+		// Check cache (6h) — skip if flush requested
+		if (!$flush) {
+			$cached_ts = (int)$this->config->get($cache_ts_key);
+			if ($cached_ts && (time() - $cached_ts) < 21600) {
+				$cached = $this->config->get($cache_key);
+				if ($cached) {
+					$json = json_decode((string)$cached, true);
+					if (is_array($json)) {
+						$json['from_cache'] = true;
+						return $json;
+					}
+				}
+			}
+		}
+
+		// Call GitHub API — fetch all releases (includes latest)
+		$body = $this->httpGet('https://api.github.com/repos/' . $repo . '/releases?per_page=20', ['Accept: application/vnd.github+json']);
+
+		if ($body === null) {
+			return ['current_version' => $current_version, 'error' => $this->language->get('error_update_check')];
+		}
+
+		$all_releases = json_decode($body, true);
+
+		if (!is_array($all_releases) || empty($all_releases)) {
+			return ['current_version' => $current_version, 'error' => $this->language->get('error_update_check')];
+		}
+
+		// Latest = first non-prerelease, non-draft
+		$release = $all_releases[0];
+		$latest_version = ltrim((string)($release['tag_name'] ?? ''), 'vV');
+		$download_url = '';
+
+		foreach ($release['assets'] ?? [] as $asset) {
+			if (!empty($asset['browser_download_url']) && str_ends_with((string)($asset['name'] ?? ''), '.ocmod.zip')) {
+				$download_url = (string)$asset['browser_download_url'];
+				break;
+			}
+		}
+
+		// Build version history list
+		$versions = [];
+		foreach ($all_releases as $rel) {
+			if (!empty($rel['draft'])) {
+				continue;
+			}
+
+			$ver = ltrim((string)($rel['tag_name'] ?? ''), 'vV');
+			$dl = '';
+
+			foreach ($rel['assets'] ?? [] as $a) {
+				if (!empty($a['browser_download_url']) && str_ends_with((string)($a['name'] ?? ''), '.ocmod.zip')) {
+					$dl = (string)$a['browser_download_url'];
+					break;
+				}
+			}
+
+			$versions[] = [
+				'version'      => $ver,
+				'tag'          => (string)($rel['tag_name'] ?? ''),
+				'changelog'    => (string)($rel['body'] ?? ''),
+				'published_at' => (string)($rel['published_at'] ?? ''),
+				'html_url'     => (string)($rel['html_url'] ?? ''),
+				'download_url' => $dl,
+				'is_current'   => version_compare($ver, $current_version, '=='),
+			];
+		}
+
+		$json = [
+			'current_version' => $current_version,
+			'latest_version'  => $latest_version,
+			'has_update'      => $latest_version !== '' ? version_compare($latest_version, $current_version, '>') : false,
+			'download_url'    => $download_url,
+			'changelog'       => (string)($release['body'] ?? ''),
+			'published_at'    => (string)($release['published_at'] ?? ''),
+			'html_url'        => (string)($release['html_url'] ?? ''),
+			'versions'        => $versions,
+			'from_cache'      => false,
+		];
+
+		// Cache result
+		$this->load->model('setting/setting');
+		$this->model_setting_setting->editSetting('module_category_merch_update', [
+			$cache_key    => json_encode($json),
+			$cache_ts_key => (string)time(),
+		]);
+
+		return $json;
+	}
+
 	public function installUpdate(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 		$this->response->addHeader('Content-Type: application/json');
 
-		if (!$this->user->hasPermission('modify', 'extension/oc_category_merch/module/category_merch')) {
+		if (!$this->user->hasPermission('modify', 'extension/category_merch/module/category_merch')) {
 			$this->response->setOutput(json_encode(['error' => true, 'message' => $this->language->get('error_permission')]));
 			return;
 		}
@@ -357,7 +404,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			CURLOPT_TIMEOUT => 60,
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_MAXREDIRS => 5,
-			CURLOPT_USERAGENT => 'oc_category_merch-updater'
+			CURLOPT_USERAGENT => 'category_merch-updater'
 		]);
 		$zip_data = curl_exec($ch);
 		$http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -397,7 +444,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			$tmp_extract = rtrim($tmp_extract, '/') . '/' . $entries[0] . '/';
 		}
 
-		$ext_dir = DIR_EXTENSION . 'oc_category_merch/';
+		$ext_dir = DIR_EXTENSION . 'category_merch/';
 
 		if (!is_dir($ext_dir)) {
 			$this->rrmdir(sys_get_temp_dir() . '/ocm_update_extract_' . basename(dirname($tmp_extract)));
@@ -451,9 +498,9 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 
 		// Bump cache version to invalidate front-end caches
 		$this->load->model('setting/setting');
-		$settings = $this->model_setting_setting->getSetting('module_oc_category_merch');
-		$settings['module_oc_category_merch_cache_version'] = (int)($settings['module_oc_category_merch_cache_version'] ?? 1) + 1;
-		$this->model_setting_setting->editSetting('module_oc_category_merch', $settings);
+		$settings = $this->model_setting_setting->getSetting('module_category_merch');
+		$settings['module_category_merch_cache_version'] = (int)($settings['module_category_merch_cache_version'] ?? 1) + 1;
+		$this->model_setting_setting->editSetting('module_category_merch', $settings);
 
 		// Read new version from freshly-installed manifest
 		$new_meta = $this->readManifest();
@@ -473,7 +520,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_TIMEOUT => 10,
 			CURLOPT_CONNECTTIMEOUT => 5,
-			CURLOPT_USERAGENT => 'oc_category_merch-updater',
+			CURLOPT_USERAGENT => 'category_merch-updater',
 			CURLOPT_HTTPHEADER => $headers
 		]);
 		$body = curl_exec($ch);
@@ -501,11 +548,11 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 	}
 
 	public function overrides(): void {
-		$this->load->language('extension/oc_category_merch/module/category_merch');
+		$this->load->language('extension/category_merch/module/category_merch');
 
 		$json = [];
 
-		if (!$this->user->hasPermission('access', 'extension/oc_category_merch/module/category_merch')) {
+		if (!$this->user->hasPermission('access', 'extension/category_merch/module/category_merch')) {
 			$json['error'] = $this->language->get('error_permission');
 			$this->response->addHeader('Content-Type: application/json');
 			$this->response->setOutput(json_encode($json));
@@ -517,10 +564,10 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$limit = 300;
 		$offset = ($page - 1) * $limit;
 
-		$this->load->model('extension/oc_category_merch/module/category_merch');
-		$result = $this->model_extension_oc_category_merch_module_category_merch->getCategoryTreeWithScore($search, $limit, $offset);
+		$this->load->model('extension/category_merch/module/category_merch');
+		$result = $this->model_extension_category_merch_module_category_merch->getCategoryTreeWithScore($search, $limit, $offset);
 
-		$overrides = $this->config->get('module_oc_category_merch_overrides');
+		$overrides = $this->config->get('module_category_merch_overrides');
 		if (!is_array($overrides)) {
 			$overrides = [];
 		}
@@ -555,26 +602,26 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('setting/event');
 
-		$this->model_setting_event->deleteEventByCode('oc_category_merch');
+		$this->model_setting_event->deleteEventByCode('category_merch');
 		$this->model_setting_event->addEvent([
-			'code' => 'oc_category_merch',
+			'code' => 'category_merch',
 			'trigger' => 'catalog/view/common/menu/before',
-			'action' => 'extension/oc_category_merch/events.filterMenu',
+			'action' => 'extension/category_merch/events.filterMenu',
 			'description' => 'OC4 Category Merch menu filtering',
 			'status' => 1,
 			'sort_order' => 1
 		]);
 
 		$this->load->model('setting/setting');
-		$this->model_setting_setting->editSetting('module_oc_category_merch', [
-			'module_oc_category_merch_status' => 0,
-			'module_oc_category_merch_hide_empty' => 1,
-			'module_oc_category_merch_hide_empty_subs' => 1,
-			'module_oc_category_merch_sort_by_score' => 1,
-			'module_oc_category_merch_weight_volume' => 100,
-			'module_oc_category_merch_cache_ttl' => 300,
-			'module_oc_category_merch_overrides' => [],
-			'module_oc_category_merch_cache_version' => 1
+		$this->model_setting_setting->editSetting('module_category_merch', [
+			'module_category_merch_status' => 0,
+			'module_category_merch_hide_empty' => 1,
+			'module_category_merch_hide_empty_subs' => 1,
+			'module_category_merch_sort_by_score' => 1,
+			'module_category_merch_weight_volume' => 100,
+			'module_category_merch_cache_ttl' => 300,
+			'module_category_merch_overrides' => [],
+			'module_category_merch_cache_version' => 1
 		]);
 	}
 
@@ -586,12 +633,12 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$this->load->model('setting/event');
 		$this->load->model('setting/setting');
 
-		$this->model_setting_event->deleteEventByCode('oc_category_merch');
-		$this->model_setting_setting->deleteSetting('module_oc_category_merch');
+		$this->model_setting_event->deleteEventByCode('category_merch');
+		$this->model_setting_setting->deleteSetting('module_category_merch');
 	}
 
 	private function readManifest(): array {
-		$path = DIR_EXTENSION . 'oc_category_merch/install.json';
+		$path = DIR_EXTENSION . 'category_merch/install.json';
 
 		if (!is_file($path)) {
 			return [];

@@ -49,6 +49,8 @@ $_['button_recalculate'] = 'Recalculate / Refresh Cache';
 $_['button_check_updates'] = 'Check for Updates';
 $_['button_install_update'] = 'Install Update';
 $_['button_download'] = 'Download Release';
+$_['button_view_release'] = 'View Release';
+$_['button_refresh'] = 'Refresh';
 
 // Updates
 $_['text_updates_intro'] = 'This module can be updated from GitHub. Click below to check for a newer release.';
@@ -59,7 +61,22 @@ $_['text_update_available'] = 'An update is available!';
 $_['text_repository'] = 'Repository';
 $_['text_no_repository'] = 'No GitHub repository configured for this module.';
 $_['text_checking'] = 'Checking...';
+$_['text_session_expired'] = 'Your admin session has expired. Please reload this page and log in again before checking for updates.';
+$_['text_changelog'] = 'Changelog';
+$_['text_update_source'] = 'Updates are checked from GitHub:';
+$_['text_installing'] = 'Downloading and installing update...';
+$_['text_version_history'] = 'Version History';
+$_['text_version_history_hint'] = 'Click the Updates tab to load version history.';
+$_['text_version_installed'] = 'INSTALLED';
+$_['text_version_newer'] = 'NEW';
+$_['text_version_downgrade'] = 'Install this version';
+$_['text_confirm_downgrade'] = 'Are you sure you want to install an older version? This will overwrite the current version.';
 
 // Errors
 $_['error_permission'] = 'Warning: You do not have permission to modify Category Merch Manager!';
 $_['error_update_check'] = 'Could not reach GitHub API. Please try again later.';
+$_['error_untrusted_url'] = 'Refused to download from an untrusted URL.';
+$_['error_update_download'] = 'Could not download the update archive. Please try again later.';
+$_['error_update_extract'] = 'Could not extract the update archive.';
+$_['error_ext_dir_missing'] = 'Extension directory is missing on the server.';
+$_['error_update_write'] = 'Some files could not be written during the update.';
