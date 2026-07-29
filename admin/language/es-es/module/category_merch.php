@@ -12,6 +12,8 @@ $_['text_auto'] = 'Auto';
 $_['text_force_show'] = 'Forzar mostrar';
 $_['text_force_hide'] = 'Forzar ocultar';
 $_['text_dashboard'] = 'Panel de categorías';
+$_['text_category_tree'] = 'Árbol de categorías — puntuaciones en profundidad';
+$_['text_category_tree_hint'] = 'Haz clic en una categoría para expandirla y ver la puntuación de sus hijas, a cualquier profundidad (sub, sub-sub, etc.).';
 $_['text_no_results'] = 'No se encontraron categorías.';
 
 // Pestañas

@@ -33,6 +33,39 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	}
 
 	/**
+	 * Direct children of a category (any depth) with total + score, sorted by score DESC.
+	 * Powers the Dashboard drill-down tree — reuses the same cached flat tree as
+	 * getCategoryTreeWithScore(), so expanding a node costs nothing extra.
+	 *
+	 * @param int $parent_id 0 = top-level categories
+	 */
+	public function getChildrenWithScore(int $parent_id): array {
+		$all = $this->loadTreeRowsCached();
+
+		$children = array_values(array_filter($all, function ($r) use ($parent_id) {
+			return (int)$r['parent_id'] === $parent_id;
+		}));
+
+		$has_children = [];
+		foreach ($all as $r) {
+			$has_children[(int)$r['parent_id']] = true;
+		}
+
+		foreach ($children as &$row) {
+			$row['has_children'] = isset($has_children[$row['category_id']]);
+		}
+		unset($row);
+
+		usort($children, function (array $a, array $b) {
+			return ((int)$b['score'] <=> (int)$a['score'])
+				?: ((int)$b['total'] <=> (int)$a['total'])
+				?: strcmp((string)$a['name'], (string)$b['name']);
+		});
+
+		return $children;
+	}
+
+	/**
 	 * Top-level categories with total + score, sorted by total DESC.
 	 */
 	public function getTopCategoriesWithScore(): array {

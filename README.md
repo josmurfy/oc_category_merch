@@ -2,7 +2,7 @@
 
 OpenCart 4.x module to make your category menu smarter.
 
-**Version:** 0.3.3
+**Version:** 0.4.0
 **Compatibility:** OpenCart 4.x
 **Languages:** English, Français, Español
 **License:** MIT (see [LICENSE](LICENSE))
@@ -24,6 +24,9 @@ OpenCart 4.x module to make your category menu smarter.
 - **i18n** — full EN / FR / ES translations
 - **Performance** — server-side paged tree (300/page), cached totals, tuned for 60k+ categories
 - **SEO-aware** — resolves category IDs from SEO URLs across all storefront languages
+- **Category page filter** — hides empty subcategories on the category page's own listing, not just the top menu
+- **Related Categories widget** — auto-appended to category/product pages, pointing buyers to sibling/child categories with stock
+- **Category Showcase** — optional homepage block ("Our Best Collections") with the top categories by active product count, auto-selected or manually curated
 
 ---
 
@@ -33,6 +36,7 @@ OpenCart 4.x module to make your category menu smarter.
 2. OpenCart Admin → **Extensions → Installer** → upload the zip
 3. Admin → **Extensions → Modules** → find *Category Merch Manager* → click **Install** then **Edit**
 4. Configure the settings and click **Save**
+5. Optional: same page, find *Category Showcase* → **Install** → **Edit** to enable the homepage "Best Collections" block
 
 ---
 
@@ -76,12 +80,15 @@ extension/category_merch/
 ├── install.json                      # Marketplace metadata (code: category_merch)
 ├── admin/
 │   ├── controller/module/category_merch.php
+│   ├── controller/module/category_showcase.php   # 2nd module: homepage showcase settings
 │   ├── model/module/category_merch.php
-│   ├── language/{en-gb,fr-fr,es-es}/module/category_merch.php
-│   └── view/template/module/category_merch.twig
+│   ├── language/{en-gb,fr-fr,es-es}/module/{category_merch,category_showcase}.php
+│   └── view/template/module/{category_merch,category_showcase}.twig
 └── catalog/
-    ├── controller/events.php         # Menu-filter event handler
-    └── model/module/category_merch.php
+    ├── controller/events.php         # All event handlers: menu filter, category-page
+    │                                 # filter, related categories, homepage showcase
+    ├── model/module/category_merch.php
+    └── language/{en-gb,fr-fr,es-es}/module/category_merch.php
 ```
 
 Namespace: `Opencart\{Admin|Catalog}\{Controller|Model}\Extension\CategoryMerch\Module`.
@@ -100,6 +107,13 @@ zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitigno
 ---
 
 ## Changelog
+
+### 0.4.0
+- New: **Dashboard drill-down tree** — lazy-loaded expandable category tree (Dashboard tab) shows the score at any depth (sub, sub-sub, etc.), not just top-level totals.
+- New: **Category page filter** — empty subcategories are now also hidden on the category page's own listing (previously only the top menu was filtered).
+- New: **Related Categories widget** — auto-appended on category/product pages (siblings or children with stock), togglable.
+- New: **Category Showcase** — second module bundled in this extension, auto-injects a "best collections" tile grid on the homepage when enabled (single toggle, no Design > Layout placement needed), auto-selected by score or manually curated by category ID.
+- Perf: catalog-side category totals are now cached (5 min), since more storefront events now read them per page view.
 
 ### 0.3.3
 - **Breaking (internal):** renamed extension folder/namespace/settings from `oc_category_merch` to `category_merch` (dropped the `oc_` prefix), matching the Debug Logger extension's convention. GitHub repo name unchanged for continuity.

@@ -12,6 +12,8 @@ $_['text_auto'] = 'Auto';
 $_['text_force_show'] = 'Force Show';
 $_['text_force_hide'] = 'Force Hide';
 $_['text_dashboard'] = 'Category Dashboard';
+$_['text_category_tree'] = 'Category Tree — Drill-down Scores';
+$_['text_category_tree_hint'] = 'Click a category to expand it and see its children\'s scores, at any depth (sub, sub-sub, etc.).';
 $_['text_no_results'] = 'No categories found.';
 
 // Tabs

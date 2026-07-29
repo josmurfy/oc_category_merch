@@ -32,6 +32,7 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['check_updates'] = $this->url->link('extension/category_merch/module/category_merch.checkUpdates', 'user_token=' . $this->session->data['user_token'] . '&flush=1', true);
 		$data['install_update'] = $this->url->link('extension/category_merch/module/category_merch.installUpdate', 'user_token=' . $this->session->data['user_token'], true);
 		$data['overrides_url'] = $this->url->link('extension/category_merch/module/category_merch.overrides', 'user_token=' . $this->session->data['user_token'], true);
+		$data['tree_children_url'] = $this->url->link('extension/category_merch/module/category_merch.treeChildren', 'user_token=' . $this->session->data['user_token'], true);
 		$data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module');
 
 		$data['module_category_merch_status'] = (int)$this->config->get('module_category_merch_status');
@@ -82,6 +83,8 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['text_enabled'] = $this->language->get('text_enabled');
 		$data['text_disabled'] = $this->language->get('text_disabled');
 		$data['text_dashboard'] = $this->language->get('text_dashboard');
+		$data['text_category_tree'] = $this->language->get('text_category_tree');
+		$data['text_category_tree_hint'] = $this->language->get('text_category_tree_hint');
 		$data['text_no_results'] = $this->language->get('text_no_results');
 		$data['tab_settings'] = $this->language->get('tab_settings');
 		$data['tab_dashboard'] = $this->language->get('tab_dashboard');
@@ -595,6 +598,43 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
+	/**
+	 * AJAX: direct children (any depth) of a category, with score — powers the
+	 * Dashboard drill-down tree. parent_id=0 returns top-level categories.
+	 */
+	public function treeChildren(): void {
+		$this->load->language('extension/category_merch/module/category_merch');
+		$this->response->addHeader('Content-Type: application/json');
+
+		$json = [];
+
+		if (!$this->user->hasPermission('access', 'extension/category_merch/module/category_merch')) {
+			$json['error'] = $this->language->get('error_permission');
+			$this->response->setOutput(json_encode($json));
+			return;
+		}
+
+		$parent_id = (int)($this->request->get['parent_id'] ?? 0);
+
+		$this->load->model('extension/category_merch/module/category_merch');
+		$children = $this->model_extension_category_merch_module_category_merch->getChildrenWithScore($parent_id);
+
+		$rows = [];
+		foreach ($children as $r) {
+			$rows[] = [
+				'category_id' => (int)$r['category_id'],
+				'name' => (string)$r['name'],
+				'total' => (int)$r['total'],
+				'score' => (int)$r['score'],
+				'has_children' => !empty($r['has_children'])
+			];
+		}
+
+		$json['rows'] = $rows;
+
+		$this->response->setOutput(json_encode($json));
+	}
+
 	public function install(): void {
 		if (!$this->user->hasPermission('modify', 'extension/module')) {
 			return;
@@ -612,6 +652,36 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			'sort_order' => 1
 		]);
 
+		$this->model_setting_event->deleteEventByCode('category_merch_page');
+		$this->model_setting_event->addEvent([
+			'code' => 'category_merch_page',
+			'trigger' => 'catalog/view/product/category/before',
+			'action' => 'extension/category_merch/events.filterCategoryPage',
+			'description' => 'OC4 Category Merch: hide empty subcategories on the category page itself',
+			'status' => 1,
+			'sort_order' => 1
+		]);
+
+		$this->model_setting_event->deleteEventByCode('category_merch_related');
+		$this->model_setting_event->addEvent([
+			'code' => 'category_merch_related',
+			'trigger' => 'catalog/view/product/category/after',
+			'action' => 'extension/category_merch/events.appendRelatedCategories',
+			'description' => 'OC4 Category Merch: related categories block on category/product pages',
+			'status' => 1,
+			'sort_order' => 5
+		]);
+
+		$this->model_setting_event->deleteEventByCode('category_merch_related_product');
+		$this->model_setting_event->addEvent([
+			'code' => 'category_merch_related_product',
+			'trigger' => 'catalog/view/product/product/after',
+			'action' => 'extension/category_merch/events.appendRelatedCategories',
+			'description' => 'OC4 Category Merch: related categories block on product pages',
+			'status' => 1,
+			'sort_order' => 5
+		]);
+
 		$this->load->model('setting/setting');
 		$this->model_setting_setting->editSetting('module_category_merch', [
 			'module_category_merch_status' => 0,
@@ -621,7 +691,9 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			'module_category_merch_weight_volume' => 100,
 			'module_category_merch_cache_ttl' => 300,
 			'module_category_merch_overrides' => [],
-			'module_category_merch_cache_version' => 1
+			'module_category_merch_cache_version' => 1,
+			'module_category_merch_related_status' => 1,
+			'module_category_merch_related_limit' => 6
 		]);
 	}
 
@@ -634,6 +706,9 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$this->load->model('setting/setting');
 
 		$this->model_setting_event->deleteEventByCode('category_merch');
+		$this->model_setting_event->deleteEventByCode('category_merch_page');
+		$this->model_setting_event->deleteEventByCode('category_merch_related');
+		$this->model_setting_event->deleteEventByCode('category_merch_related_product');
 		$this->model_setting_setting->deleteSetting('module_category_merch');
 	}
 

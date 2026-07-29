@@ -12,6 +12,8 @@ $_['text_auto'] = 'Auto';
 $_['text_force_show'] = 'Forcer affichage';
 $_['text_force_hide'] = 'Forcer masquage';
 $_['text_dashboard'] = 'Tableau de bord catégories';
+$_['text_category_tree'] = 'Arbre des catégories — scores en profondeur';
+$_['text_category_tree_hint'] = 'Clique sur une catégorie pour la déplier et voir le score de ses enfants, peu importe la profondeur (sous, sous-sous, etc.).';
 $_['text_no_results'] = 'Aucune catégorie trouvée.';
 
 // Onglets

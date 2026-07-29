@@ -180,6 +180,15 @@
           {% endset %}
 
           {{ dashboard_block }}
+
+          <div class="card mt-3">
+            <div class="card-header"><i class="fa-solid fa-sitemap"></i> {{ text_category_tree }}</div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">{{ text_category_tree_hint }}</p>
+              <div id="cm-tree-root" class="cm-tree"></div>
+            </div>
+          </div>
+
           <div class="mt-3">{{ settings_block }}</div>
 
         </div>
@@ -658,6 +667,105 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
       });
   });
 })();
+
+// ---- Dashboard drill-down tree ----
+(function () {
+  var root = document.getElementById('cm-tree-root');
+  if (!root) return;
+
+  var URL_TREE = {{ tree_children_url|json_encode|raw }};
+  var cache = {};
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function fetchChildren(parentId) {
+    if (cache[parentId]) return Promise.resolve(cache[parentId]);
+    return fetch(URL_TREE + '&parent_id=' + parentId, {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        var rows = json.rows || [];
+        cache[parentId] = rows;
+        return rows;
+      });
+  }
+
+  function renderNode(row) {
+    var node = document.createElement('div');
+    node.className = 'cm-tree-node';
+
+    var head = document.createElement('div');
+    head.className = 'cm-tree-head';
+
+    var caret = document.createElement('span');
+    caret.className = 'cm-tree-caret';
+    caret.innerHTML = row.has_children ? '<i class="fa-solid fa-caret-right"></i>' : '<span class="cm-tree-caret-empty"></span>';
+    head.appendChild(caret);
+
+    var label = document.createElement('span');
+    label.className = 'cm-tree-label';
+    label.textContent = row.name;
+    head.appendChild(label);
+
+    var total = document.createElement('span');
+    total.className = 'badge bg-secondary ms-2';
+    total.textContent = row.total;
+    head.appendChild(total);
+
+    var scoreWrap = document.createElement('span');
+    scoreWrap.className = 'cm-tree-score';
+    scoreWrap.innerHTML = '<span class="progress" style="height:6px;width:80px;display:inline-block;vertical-align:middle;">' +
+      '<span class="progress-bar bg-success" style="width:' + row.score + '%;"></span></span>' +
+      '<small class="text-muted ms-1">' + row.score + '%</small>';
+    head.appendChild(scoreWrap);
+
+    node.appendChild(head);
+
+    var childrenDiv = document.createElement('div');
+    childrenDiv.className = 'cm-tree-children d-none';
+    node.appendChild(childrenDiv);
+
+    var expanded = false;
+
+    if (row.has_children) {
+      head.classList.add('cm-tree-head-clickable');
+      head.addEventListener('click', function () {
+        expanded = !expanded;
+        caret.innerHTML = expanded
+          ? '<i class="fa-solid fa-caret-down"></i>'
+          : '<i class="fa-solid fa-caret-right"></i>';
+
+        if (!expanded) {
+          childrenDiv.classList.add('d-none');
+          return;
+        }
+
+        childrenDiv.classList.remove('d-none');
+
+        if (childrenDiv.dataset.loaded) return;
+        childrenDiv.dataset.loaded = '1';
+        childrenDiv.innerHTML = '<div class="text-muted small"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+
+        fetchChildren(row.category_id).then(function (rows) {
+          childrenDiv.innerHTML = '';
+          rows.forEach(function (r) { childrenDiv.appendChild(renderNode(r)); });
+        });
+      });
+    }
+
+    return node;
+  }
+
+  fetchChildren(0).then(function (rows) {
+    if (!rows.length) {
+      root.innerHTML = '<div class="text-muted small">' + esc({{ text_no_results|json_encode|raw }}) + '</div>';
+      return;
+    }
+    rows.forEach(function (r) { root.appendChild(renderNode(r)); });
+  });
+})();
 </script>
 
 <style>
@@ -666,6 +774,15 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
 .form-switch.form-switch-lg .form-check-label { font-weight: 500; margin-left: .6rem; vertical-align: middle; }
 #cm-tabs .nav-link { color: #495057; }
 #cm-tabs .nav-link.active { font-weight: 600; }
+.cm-tree-node { margin-bottom: 2px; }
+.cm-tree-head { display: flex; align-items: center; gap: .5rem; padding: .25rem .25rem; border-radius: 4px; }
+.cm-tree-head-clickable { cursor: pointer; }
+.cm-tree-head:hover { background: #f1f3f5; }
+.cm-tree-caret { width: 16px; text-align: center; color: #6c757d; cursor: pointer; }
+.cm-tree-caret-empty { display: inline-block; width: 16px; }
+.cm-tree-label { flex: 1 1 auto; }
+.cm-tree-score { display: flex; align-items: center; white-space: nowrap; }
+.cm-tree-children { margin-left: 22px; border-left: 1px dashed #dee2e6; padding-left: 10px; margin-top: 2px; }
 </style>
 
 {{ footer }}
