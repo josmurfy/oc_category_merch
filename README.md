@@ -94,7 +94,7 @@ Repo layout mirrors the OpenCart install path exactly, so the working tree can b
 zipped directly for distribution:
 
 ```bash
-zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitignore" "LICENSE" "release.sh"
+zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitignore" "release.sh"
 ```
 
 ---
