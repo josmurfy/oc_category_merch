@@ -66,29 +66,24 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	}
 
 	/**
-	 * Leaf categories (no children) that actually have stock, sorted by score DESC.
-	 *
-	 * This is the "what do I actually have to sell, and where does it live"
-	 * view — generic parent buckets (e.g. "Electronics") hide which specific
-	 * leaf is doing the work, so the dashboard leads with this instead.
+	 * eBay leaf categories (c.leaf = 1 — the actual eBay-taxonomy leaf flag,
+	 * not a computed "has no children" guess) that have stock, sorted by
+	 * product count DESC. This is the "what do I actually have to sell, and
+	 * where does it live" view — generic parent buckets (e.g. "Electronics")
+	 * hide which specific leaf is doing the work, so the dashboard leads
+	 * with this instead.
 	 *
 	 * @param int $limit 0 = no limit
 	 */
 	public function getLeafCategoriesWithScore(int $limit = 0): array {
 		$all = $this->loadTreeRowsCached();
 
-		$has_children = [];
-		foreach ($all as $r) {
-			$has_children[(int)$r['parent_id']] = true;
-		}
-
-		$leaves = array_values(array_filter($all, function ($r) use ($has_children) {
-			return $r['total'] > 0 && empty($has_children[$r['category_id']]);
+		$leaves = array_values(array_filter($all, function ($r) {
+			return $r['leaf'] === 1 && $r['total'] > 0;
 		}));
 
 		usort($leaves, function (array $a, array $b) {
-			return ((int)$b['score'] <=> (int)$a['score'])
-				?: ((int)$b['total'] <=> (int)$a['total'])
+			return ((int)$b['total'] <=> (int)$a['total'])
 				?: strcmp((string)$a['name'], (string)$b['name']);
 		});
 
@@ -172,7 +167,7 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 
 		$totals = $this->getAllCategoryTotalsCached();
 
-		$sql = "SELECT c.category_id, c.parent_id, c.status, cd.name,
+		$sql = "SELECT c.category_id, c.parent_id, c.status, c.leaf, cd.name,
 			(SELECT COUNT(*) - 1 FROM " . DB_PREFIX . "category_path cp2 WHERE cp2.category_id = c.category_id) AS level
 			FROM " . DB_PREFIX . "category c
 			LEFT JOIN " . DB_PREFIX . "category_description cd ON (c.category_id = cd.category_id)
@@ -190,6 +185,7 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 			$row['category_id'] = (int)$row['category_id'];
 			$row['parent_id'] = (int)$row['parent_id'];
 			$row['status'] = (int)$row['status'];
+			$row['leaf'] = (int)$row['leaf'];
 			$row['level'] = (int)$row['level'];
 			$row['total'] = $total;
 			$row['score'] = $max > 0 ? (int)round(($total / $max) * 100) : 0;
