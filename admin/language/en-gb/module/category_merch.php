@@ -48,7 +48,7 @@ $_['column_status'] = 'Status';
 
 // Help
 $_['help_hide_empty'] = 'When enabled, categories and subcategories with 0 active products are hidden in the front menu.';
-$_['help_hide_empty_subs'] = 'When enabled, subcategories with 0 active products are hidden inside their parent. Works independently from the top-level hide toggle.';
+$_['help_hide_empty_subs'] = 'When enabled, the sub-menu is regrouped by populated eBay leaf categories\' parent (instead of raw direct children) — bare leaves like "Girls" get merged under a meaningful shared parent with combined stock, and empty ones disappear. Works independently from the top-level hide toggle.';
 $_['help_sort_by_score'] = 'When enabled, categories are ordered by merchandising score (product count).';
 $_['help_cache_ttl'] = 'Cached menu reorder/hide result lifetime. Lower values refresh faster; higher values reduce database load.';
 

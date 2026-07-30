@@ -68,17 +68,36 @@ class Events extends \Opencart\System\Engine\Controller {
 
 			$child_rows = [];
 
-			if (!empty($category['children']) && is_array($category['children'])) {
+			if ($hide_empty_subs) {
+				// Regroup by populated-leaf parent instead of OpenCart's native
+				// direct children: a bare leaf ("Girls") is contextless on its
+				// own, and siblings (Girls/Boys/Men) sharing one parent would
+				// otherwise show as separate, disconnected sub-menu entries.
+				// Grouping merges them under their shared parent with combined
+				// stock, and gives every entry a name that means something.
+				$groups = $this->model_extension_category_merch_module_category_merch->getLeafGroupsForRoot($category_id);
+
+				foreach ($groups as $group) {
+					$group_id = (int)$group['category_id'];
+					$override = isset($overrides[$group_id]) ? (int)$overrides[$group_id] : 0;
+
+					if ($override === -1) {
+						continue;
+					}
+
+					$child_rows[] = [
+						'name' => $group['name'],
+						'href' => $this->url->link('product/category', 'language=' . $this->config->get('config_language') . '&path=' . $category_id . '_' . $group_id),
+						'__total' => (int)$group['total']
+					];
+				}
+			} elseif (!empty($category['children']) && is_array($category['children'])) {
 				foreach ($category['children'] as $child) {
 					$child_id = $this->extractCategoryId($child['href'] ?? '');
 					$total = $child_id ? $this->model_extension_category_merch_module_category_merch->getActiveSubtreeTotal($child_id) : 0;
 					$override = $child_id && isset($overrides[$child_id]) ? (int)$overrides[$child_id] : 0;
 
 					if ($override === -1) {
-						continue;
-					}
-
-					if ($hide_empty_subs && $total === 0 && $override !== 1) {
 						continue;
 					}
 

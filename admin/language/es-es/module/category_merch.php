@@ -48,7 +48,7 @@ $_['column_status'] = 'Estado';
 
 // Ayuda
 $_['help_hide_empty'] = 'Cuando está habilitado, las categorías y subcategorías con 0 productos activos se ocultan en el menú frontal.';
-$_['help_hide_empty_subs'] = 'Cuando está habilitado, las subcategorías con 0 productos activos se ocultan dentro de su categoría padre. Independiente del toggle de categorías top-level.';
+$_['help_hide_empty_subs'] = 'Cuando está habilitado, el submenú se reagrupa por la categoría padre de las leaf de eBay con stock (en lugar de los hijos directos) — las leaf sin contexto como "Girls" quedan agrupadas bajo un padre con sentido, con el stock combinado, y las vacías desaparecen. Independiente del interruptor de categorías top-level.';
 $_['help_sort_by_score'] = 'Cuando está habilitado, las categorías se ordenan por puntuación de merchandising (número de productos).';
 $_['help_cache_ttl'] = 'Vida útil del caché de reordenar/ocultar menú. Valores más bajos refrescan más rápido; más altos reducen carga en la BD.';
 

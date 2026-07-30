@@ -14,6 +14,73 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	}
 
 	/**
+	 * Populated eBay-leaf categories under $root_category_id, grouped by their
+	 * immediate parent (or by themselves, if that parent is the root — nothing
+	 * meaningful to group under otherwise). Powers the menu's sub-level: pure
+	 * leaves ("Girls") are contextless on their own and siblings like
+	 * Girls/Boys/Men would otherwise appear as separate, disconnected entries;
+	 * grouping by parent both gives context and merges them into one entry
+	 * with the combined stock count. Sorted by total DESC.
+	 */
+	public function getLeafGroupsForRoot(int $root_category_id): array {
+		if (!$this->loaded) {
+			$this->loadTotals();
+		}
+
+		$language_id = (int)$this->config->get('config_language_id');
+
+		$sql = "SELECT c.category_id, c.parent_id, cd.name AS leaf_name, pd.name AS parent_name
+			FROM " . DB_PREFIX . "category_path cp
+			JOIN " . DB_PREFIX . "category c ON (c.category_id = cp.category_id AND c.leaf = '1')
+			LEFT JOIN " . DB_PREFIX . "category_description cd ON (cd.category_id = c.category_id AND cd.language_id = '" . $language_id . "')
+			LEFT JOIN " . DB_PREFIX . "category_description pd ON (pd.category_id = c.parent_id AND pd.language_id = '" . $language_id . "')
+			WHERE cp.path_id = '" . (int)$root_category_id . "'
+			AND cp.category_id != '" . (int)$root_category_id . "'";
+
+		$rows = $this->db->query($sql)->rows;
+
+		$groups = [];
+
+		foreach ($rows as $row) {
+			$leaf_id = (int)$row['category_id'];
+			$total = $this->getActiveSubtreeTotal($leaf_id);
+
+			if ($total === 0) {
+				continue;
+			}
+
+			$parent_id = (int)$row['parent_id'];
+
+			if ($parent_id === $root_category_id) {
+				// Nothing meaningful to group under — the leaf itself is the entry.
+				$group_id = $leaf_id;
+				$group_name = (string)($row['leaf_name'] ?? '');
+			} else {
+				$group_id = $parent_id;
+				$group_name = (string)($row['parent_name'] ?? '');
+			}
+
+			if (!isset($groups[$group_id])) {
+				$groups[$group_id] = [
+					'category_id' => $group_id,
+					'name' => $group_name,
+					'total' => 0
+				];
+			}
+
+			$groups[$group_id]['total'] += $total;
+		}
+
+		$groups = array_values($groups);
+
+		usort($groups, function (array $a, array $b) {
+			return ((int)$b['total'] <=> (int)$a['total']) ?: strcmp((string)$a['name'], (string)$b['name']);
+		});
+
+		return $groups;
+	}
+
+	/**
 	 * Children of $category_id (or, if it has none, its siblings) with active
 	 * product totals, non-empty only, sorted by total DESC. Powers the
 	 * "related categories" widget on category/product pages.

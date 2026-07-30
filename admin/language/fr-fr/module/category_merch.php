@@ -48,7 +48,7 @@ $_['column_status'] = 'Statut';
 
 // Aide
 $_['help_hide_empty'] = 'Quand activé, les catégories et sous-catégories avec 0 produit actif sont masquées dans le menu front.';
-$_['help_hide_empty_subs'] = 'Quand activé, les sous-catégories avec 0 produit actif sont masquées à l\'intérieur de leur parent. Indépendant du toggle des catégories top-level.';
+$_['help_hide_empty_subs'] = 'Quand activé, le sous-menu est regroupé par parent des catégories leaf eBay qui ont du stock (au lieu des enfants directs bruts) — les leaf sans contexte comme "Girls" se retrouvent regroupées sous un parent qui veut dire quelque chose, avec le stock combiné, et les vides disparaissent. Indépendant du toggle des catégories top-level.';
 $_['help_sort_by_score'] = 'Quand activé, les catégories sont ordonnées par score merchandising (nombre de produits).';
 $_['help_cache_ttl'] = 'Durée de vie du cache tri/filtrage menu. Plus bas = plus frais ; plus haut = moins de charge DB.';
 
