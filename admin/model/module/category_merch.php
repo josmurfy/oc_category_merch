@@ -79,7 +79,7 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 		$all = $this->loadTreeRowsCached();
 
 		$leaves = array_values(array_filter($all, function ($r) {
-			return $r['leaf'] === 1 && $r['total'] > 0;
+			return (int)($r['leaf'] ?? 0) === 1 && (int)($r['total'] ?? 0) > 0;
 		}));
 
 		usort($leaves, function (array $a, array $b) {
