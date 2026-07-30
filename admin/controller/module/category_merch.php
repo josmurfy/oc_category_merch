@@ -537,6 +537,14 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
+		// Re-register events + fill in any newly-added setting keys — a plain
+		// file copy never runs install(), so a version that adds an event or
+		// a setting (like the category-page filter / related-categories
+		// events added in v0.4.0) would otherwise stay silently inactive
+		// forever after a self-update, exactly as happened here.
+		$this->registerEvents();
+		$this->ensureDefaultSettings();
+
 		// Bump cache version to invalidate front-end caches
 		$this->load->model('setting/setting');
 		$settings = $this->model_setting_setting->getSetting('module_category_merch');
@@ -743,6 +751,15 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
+		$this->registerEvents();
+		$this->ensureDefaultSettings();
+	}
+
+	/**
+	 * Registers all events unconditionally (delete-then-add is idempotent —
+	 * safe to call every time, whether this is a first install or a re-run).
+	 */
+	private function registerEvents(): void {
 		$this->load->model('setting/event');
 
 		$this->model_setting_event->deleteEventByCode('category_merch');
@@ -784,9 +801,20 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			'status' => 1,
 			'sort_order' => 5
 		]);
+	}
 
+	/**
+	 * Fills in any setting key that doesn't already exist yet, without
+	 * touching ones the owner already configured. Safe to call on every
+	 * install AND every self-update — a version that adds a new setting key
+	 * (like related_status/related_limit in v0.4.0) needs this to actually
+	 * take effect for sites that only ever get file updates via the
+	 * "Install update" button, which never re-runs install().
+	 */
+	private function ensureDefaultSettings(): void {
 		$this->load->model('setting/setting');
-		$this->model_setting_setting->editSetting('module_category_merch', [
+
+		$defaults = [
 			'module_category_merch_status' => 0,
 			'module_category_merch_hide_empty' => 1,
 			'module_category_merch_hide_empty_subs' => 1,
@@ -797,7 +825,18 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			'module_category_merch_cache_version' => 1,
 			'module_category_merch_related_status' => 1,
 			'module_category_merch_related_limit' => 6
-		]);
+		];
+
+		$current = $this->model_setting_setting->getSetting('module_category_merch');
+		$merged = $defaults;
+
+		foreach ($current as $key => $value) {
+			if ($value !== null) {
+				$merged[$key] = $value;
+			}
+		}
+
+		$this->model_setting_setting->editSetting('module_category_merch', $merged);
 	}
 
 	public function uninstall(): void {
