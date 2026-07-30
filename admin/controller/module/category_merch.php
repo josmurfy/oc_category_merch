@@ -210,14 +210,29 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 				$clean_overrides[$cid] = $imode;
 			}
 
-			$post = [
-				'module_category_merch_status' => (int)($this->request->post['module_category_merch_status'] ?? 0),
-				'module_category_merch_hide_empty' => (int)($this->request->post['module_category_merch_hide_empty'] ?? 0),					'module_category_merch_hide_empty_subs' => (int)($this->request->post['module_category_merch_hide_empty_subs'] ?? 0),				'module_category_merch_sort_by_score' => (int)($this->request->post['module_category_merch_sort_by_score'] ?? 0),
-				'module_category_merch_weight_volume' => max(0, min(100, (int)($this->request->post['module_category_merch_weight_volume'] ?? 100))),
-				'module_category_merch_cache_ttl' => max(30, min(86400, (int)($this->request->post['module_category_merch_cache_ttl'] ?? 300))),
-				'module_category_merch_overrides' => $clean_overrides,
-				'module_category_merch_cache_version' => (int)$this->config->get('module_category_merch_cache_version') + 1
-			];
+			// Start from whatever is already saved (e.g. related_status/related_limit,
+			// added after this form was built) so editSetting() — which replaces the
+			// whole group — doesn't silently delete settings this form doesn't know
+			// about. Only the fields below actually get overwritten.
+			$this->load->model('setting/setting');
+			$post = $this->model_setting_setting->getSetting('module_category_merch');
+
+			$post['module_category_merch_status'] = (int)($this->request->post['module_category_merch_status'] ?? 0);
+			$post['module_category_merch_hide_empty'] = (int)($this->request->post['module_category_merch_hide_empty'] ?? 0);
+			$post['module_category_merch_hide_empty_subs'] = (int)($this->request->post['module_category_merch_hide_empty_subs'] ?? 0);
+			$post['module_category_merch_sort_by_score'] = (int)($this->request->post['module_category_merch_sort_by_score'] ?? 0);
+			$post['module_category_merch_weight_volume'] = max(0, min(100, (int)($this->request->post['module_category_merch_weight_volume'] ?? 100)));
+			$post['module_category_merch_cache_ttl'] = max(30, min(86400, (int)($this->request->post['module_category_merch_cache_ttl'] ?? 300)));
+			$post['module_category_merch_overrides'] = $clean_overrides;
+			$post['module_category_merch_cache_version'] = (int)($post['module_category_merch_cache_version'] ?? 0) + 1;
+			$post['module_category_merch_related_status'] = isset($post['module_category_merch_related_status']) ? (int)$post['module_category_merch_related_status'] : 1;
+			$post['module_category_merch_related_limit'] = isset($post['module_category_merch_related_limit']) ? (int)$post['module_category_merch_related_limit'] : 6;
+
+			foreach ($post as $key => $value) {
+				if ($value === null) {
+					unset($post[$key]);
+				}
+			}
 
 			$this->model_setting_setting->editSetting('module_category_merch', $post);
 
@@ -242,6 +257,12 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 
 			$current = $this->model_setting_setting->getSetting('module_category_merch');
 			$current['module_category_merch_cache_version'] = (int)($current['module_category_merch_cache_version'] ?? 0) + 1;
+
+			foreach ($current as $key => $value) {
+				if ($value === null) {
+					unset($current[$key]);
+				}
+			}
 
 			$this->model_setting_setting->editSetting('module_category_merch', $current);
 
@@ -670,6 +691,21 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
+		ob_start();
+
+		try {
+			$json = $this->buildBulkHideEmptyJson();
+		} catch (\Throwable $e) {
+			error_log('[category_merch] bulkHideEmpty(): ' . $e->getMessage());
+			$json = ['error' => $e->getMessage()];
+		}
+
+		ob_end_clean();
+
+		$this->response->setOutput(json_encode($json));
+	}
+
+	private function buildBulkHideEmptyJson(): array {
 		$this->load->model('extension/category_merch/module/category_merch');
 		$this->load->model('setting/setting');
 
@@ -688,12 +724,18 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$current['module_category_merch_overrides'] = $overrides;
 		$current['module_category_merch_cache_version'] = (int)($current['module_category_merch_cache_version'] ?? 0) + 1;
 
+		// editSetting() -> DB::escape() requires a string per field; a null here
+		// (e.g. a setting row that predates a later code change) would otherwise
+		// fatal instead of failing gracefully.
+		foreach ($current as $key => $value) {
+			if ($value === null) {
+				unset($current[$key]);
+			}
+		}
+
 		$this->model_setting_setting->editSetting('module_category_merch', $current);
 
-		$json['success'] = true;
-		$json['count'] = count($empty_ids);
-
-		$this->response->setOutput(json_encode($json));
+		return ['success' => true, 'count' => count($empty_ids)];
 	}
 
 	public function install(): void {
