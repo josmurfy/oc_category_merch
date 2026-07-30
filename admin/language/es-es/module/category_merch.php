@@ -14,6 +14,14 @@ $_['text_force_hide'] = 'Forzar ocultar';
 $_['text_dashboard'] = 'Panel de categorías';
 $_['text_category_tree'] = 'Árbol de categorías — puntuaciones en profundidad';
 $_['text_category_tree_hint'] = 'Haz clic en una categoría para expandirla y ver la puntuación de sus hijas, a cualquier profundidad (sub, sub-sub, etc.).';
+$_['text_leaf_categories'] = 'Tus categorías con más stock';
+$_['text_leaf_categories_hint'] = 'Las categorías más específicas que realmente tienen stock — ahí es donde llegan tus compradores, no en las categorías genéricas.';
+$_['text_general_view'] = 'Vista general (categorías padre)';
+$_['text_empty_cleanup_title'] = 'Categorías vacías que ensucian tu catálogo';
+$_['text_empty_cleanup_none'] = 'No se encontraron categorías vacías — tu catálogo está limpio.';
+$_['button_hide_all_empty'] = 'Ocultar todas';
+$_['text_confirm_hide_all_empty'] = 'Esto ocultará forzosamente todas las categorías actualmente con 0 productos activos de la tienda. Puedes deshacer cada una individualmente en la pestaña Overrides. ¿Continuar?';
+$_['text_hide_all_empty_done'] = 'Listo — %d categorías vacías ocultadas.';
 $_['text_no_results'] = 'No se encontraron categorías.';
 
 // Pestañas

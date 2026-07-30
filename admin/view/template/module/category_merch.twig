@@ -126,68 +126,127 @@
             </div>
           {% endset %}
 
-          {% set dashboard_block %}
-            <div class="card">
-              <div class="card-header"><i class="fa-solid fa-chart-column"></i> {{ text_dashboard }}</div>
-              <div class="card-body">
-                {% if chart_labels|length > 0 %}
-                  <div class="row">
-                    <div class="col-lg-7">
-                      <div style="position: relative; height: 420px;">
-                        <canvas id="cm-chart"></canvas>
-                      </div>
-                    </div>
-                    <div class="col-lg-5">
-                      <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
-                        <table class="table table-sm table-striped">
-                          <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
-                            <tr>
-                              <th>{{ column_name }}</th>
-                              <th class="text-end">{{ column_total }}</th>
-                              <th class="text-end">{{ column_score }}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {% for row in dashboard_rows %}
-                              {% if row.total > 0 %}
-                              <tr>
-                                <td>{{ row.name }}</td>
-                                <td class="text-end">{{ row.total }}</td>
-                                <td class="text-end">
-                                  <div class="d-flex align-items-center gap-2">
-                                    <div class="progress flex-grow-1" style="height: 8px;">
-                                      <div class="progress-bar bg-success" style="width: {{ row.score }}%;"></div>
-                                    </div>
-                                    <span class="text-nowrap" style="min-width: 40px;">{{ row.score }}%</span>
-                                  </div>
-                                </td>
-                              </tr>
-                              {% endif %}
-                            {% endfor %}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                {% else %}
-                  <div class="text-center text-muted py-5">
-                    <i class="fa-solid fa-chart-simple fa-3x mb-3"></i>
-                    <p>{{ text_no_results }}</p>
-                  </div>
-                {% endif %}
+          {# ---- Empty-category cleanup: the concrete, one-click use of Overrides ---- #}
+          <div class="card {% if empty_category_count > 0 %}border-warning{% endif %}">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div>
+                <div class="fw-semibold">
+                  {% if empty_category_count > 0 %}
+                    <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                    {{ text_empty_cleanup_title }}: <span class="badge bg-warning text-dark">{{ empty_category_count }}</span>
+                  {% else %}
+                    <i class="fa-solid fa-circle-check text-success"></i> {{ text_empty_cleanup_none }}
+                  {% endif %}
+                </div>
               </div>
+              {% if empty_category_count > 0 %}
+                <button type="button" class="btn btn-warning" id="cm-bulk-hide-empty"><i class="fa-solid fa-eye-slash"></i> {{ button_hide_all_empty }}</button>
+              {% endif %}
             </div>
-          {% endset %}
+          </div>
 
-          {{ dashboard_block }}
-
+          {# ---- Primary view: leaf categories — where your stock actually lives ---- #}
           <div class="card mt-3">
-            <div class="card-header"><i class="fa-solid fa-sitemap"></i> {{ text_category_tree }}</div>
+            <div class="card-header"><i class="fa-solid fa-boxes-stacked"></i> {{ text_leaf_categories }}</div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">{{ text_leaf_categories_hint }}</p>
+              {% if leaf_rows|length > 0 %}
+                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                  <table class="table table-sm table-striped mb-0">
+                    <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                      <tr>
+                        <th>{{ column_name }}</th>
+                        <th class="text-end" style="width: 140px;">{{ column_total }}</th>
+                        <th class="text-end" style="width: 200px;">{{ column_score }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in leaf_rows %}
+                        <tr>
+                          <td>{{ row.name }}</td>
+                          <td class="text-end">{{ row.total }}</td>
+                          <td class="text-end">
+                            <div class="d-flex align-items-center gap-2">
+                              <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: {{ row.score }}%;"></div>
+                              </div>
+                              <span class="text-nowrap" style="min-width: 40px;">{{ row.score }}%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="text-center text-muted py-5">
+                  <i class="fa-solid fa-boxes-stacked fa-3x mb-3"></i>
+                  <p>{{ text_no_results }}</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# ---- Secondary: generic parent-category rollup, collapsed by default ---- #}
+          <details class="card mt-3">
+            <summary class="card-header" style="cursor: pointer;"><i class="fa-solid fa-chart-column"></i> {{ text_general_view }}</summary>
+            <div class="card-body">
+              {% if chart_labels|length > 0 %}
+                <div class="row">
+                  <div class="col-lg-7">
+                    <div style="position: relative; height: 420px;">
+                      <canvas id="cm-chart"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-lg-5">
+                    <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                      <table class="table table-sm table-striped">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                          <tr>
+                            <th>{{ column_name }}</th>
+                            <th class="text-end">{{ column_total }}</th>
+                            <th class="text-end">{{ column_score }}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in dashboard_rows %}
+                            {% if row.total > 0 %}
+                            <tr>
+                              <td>{{ row.name }}</td>
+                              <td class="text-end">{{ row.total }}</td>
+                              <td class="text-end">
+                                <div class="d-flex align-items-center gap-2">
+                                  <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {{ row.score }}%;"></div>
+                                  </div>
+                                  <span class="text-nowrap" style="min-width: 40px;">{{ row.score }}%</span>
+                                </div>
+                              </td>
+                            </tr>
+                            {% endif %}
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="text-center text-muted py-5">
+                  <i class="fa-solid fa-chart-simple fa-3x mb-3"></i>
+                  <p>{{ text_no_results }}</p>
+                </div>
+              {% endif %}
+            </div>
+          </details>
+
+          {# ---- Full tree explorer, for deep manual digging ---- #}
+          <details class="card mt-3">
+            <summary class="card-header" style="cursor: pointer;"><i class="fa-solid fa-sitemap"></i> {{ text_category_tree }}</summary>
             <div class="card-body">
               <p class="text-muted small mb-3">{{ text_category_tree_hint }}</p>
               <div id="cm-tree-root" class="cm-tree"></div>
             </div>
-          </div>
+          </details>
 
           <div class="mt-3">{{ settings_block }}</div>
 
@@ -341,14 +400,18 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
   });
 });
 
-// ---- Chart.js bar chart ----
+// ---- Chart.js bar chart (lazy: it now lives inside a collapsed <details>,
+// and Chart.js sizes itself wrong if drawn while the canvas is hidden) ----
 (function () {
   var labels = {{ chart_labels|json_encode|raw }};
   var totals = {{ chart_totals|json_encode|raw }};
   var canvas = document.getElementById('cm-chart');
   if (!canvas || !labels.length) return;
 
+  var drawn = false;
+
   function drawChart() {
+    if (drawn) return;
     if (typeof Chart === 'undefined') {
       var s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
@@ -356,6 +419,7 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
       document.head.appendChild(s);
       return;
     }
+    drawn = true;
     new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: {
@@ -375,7 +439,14 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
       }
     });
   }
-  drawChart();
+
+  var details = canvas.closest('details');
+  if (details) {
+    if (details.open) drawChart();
+    details.addEventListener('toggle', function () { if (details.open) drawChart(); });
+  } else {
+    drawChart();
+  }
 })();
 
 // ---- Overrides pagination + search + state tracking ----
@@ -664,6 +735,40 @@ document.querySelectorAll('#tab-main .form-check-input[type="checkbox"]').forEac
         document.getElementById('cm-install-error').classList.remove('d-none');
         document.getElementById('cm-install-error-msg').textContent = e.message || 'Install failed';
         btn.disabled = false;
+      });
+  });
+})();
+
+// ---- Bulk hide empty categories ----
+(function () {
+  var btn = document.getElementById('cm-bulk-hide-empty');
+  if (!btn) return;
+
+  var URL_BULK_HIDE = {{ bulk_hide_empty_url|json_encode|raw }};
+  var TEXT_CONFIRM = {{ text_confirm_hide_all_empty|json_encode|raw }};
+  var TEXT_DONE = {{ text_hide_all_empty_done|json_encode|raw }};
+
+  btn.addEventListener('click', function () {
+    if (!confirm(TEXT_CONFIRM)) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+
+    fetch(URL_BULK_HIDE, {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var json;
+        try { json = JSON.parse(t); } catch (e) { throw new Error('Invalid JSON'); }
+        if (json.error) { alert(json.error); btn.disabled = false; return; }
+        alert(TEXT_DONE.replace('%d', json.count || 0));
+        window.location.reload();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> {{ button_hide_all_empty|escape('js') }}';
       });
   });
 })();

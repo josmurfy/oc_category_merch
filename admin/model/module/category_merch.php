@@ -66,6 +66,61 @@ class CategoryMerch extends \Opencart\System\Engine\Model {
 	}
 
 	/**
+	 * Leaf categories (no children) that actually have stock, sorted by score DESC.
+	 *
+	 * This is the "what do I actually have to sell, and where does it live"
+	 * view — generic parent buckets (e.g. "Electronics") hide which specific
+	 * leaf is doing the work, so the dashboard leads with this instead.
+	 *
+	 * @param int $limit 0 = no limit
+	 */
+	public function getLeafCategoriesWithScore(int $limit = 0): array {
+		$all = $this->loadTreeRowsCached();
+
+		$has_children = [];
+		foreach ($all as $r) {
+			$has_children[(int)$r['parent_id']] = true;
+		}
+
+		$leaves = array_values(array_filter($all, function ($r) use ($has_children) {
+			return $r['total'] > 0 && empty($has_children[$r['category_id']]);
+		}));
+
+		usort($leaves, function (array $a, array $b) {
+			return ((int)$b['score'] <=> (int)$a['score'])
+				?: ((int)$b['total'] <=> (int)$a['total'])
+				?: strcmp((string)$a['name'], (string)$b['name']);
+		});
+
+		if ($limit > 0) {
+			$leaves = array_slice($leaves, 0, $limit);
+		}
+
+		return $leaves;
+	}
+
+	/**
+	 * Category IDs with 0 active products (any level), excluding ones already
+	 * force-shown via override. Powers the "hide all empty categories" bulk
+	 * action — the concrete, provable use case for the Overrides mechanism.
+	 */
+	public function getEmptyCategoryIds(array $overrides = []): array {
+		$all = $this->loadTreeRowsCached();
+
+		$ids = [];
+		foreach ($all as $r) {
+			$category_id = (int)$r['category_id'];
+			$override = isset($overrides[$category_id]) ? (int)$overrides[$category_id] : 0;
+
+			if ((int)$r['total'] === 0 && $override !== 1) {
+				$ids[] = $category_id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Top-level categories with total + score, sorted by total DESC.
 	 */
 	public function getTopCategoriesWithScore(): array {

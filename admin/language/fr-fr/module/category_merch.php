@@ -14,6 +14,14 @@ $_['text_force_hide'] = 'Forcer masquage';
 $_['text_dashboard'] = 'Tableau de bord catégories';
 $_['text_category_tree'] = 'Arbre des catégories — scores en profondeur';
 $_['text_category_tree_hint'] = 'Clique sur une catégorie pour la déplier et voir le score de ses enfants, peu importe la profondeur (sous, sous-sous, etc.).';
+$_['text_leaf_categories'] = 'Tes meilleures catégories (celles qui ont du stock)';
+$_['text_leaf_categories_hint'] = 'Les catégories les plus précises qui ont vraiment du stock — c\'est là que tes acheteurs atterrissent, pas dans les gros paniers génériques.';
+$_['text_general_view'] = 'Vue générale (catégories parentes)';
+$_['text_empty_cleanup_title'] = 'Catégories vides qui encombrent ton catalogue';
+$_['text_empty_cleanup_none'] = 'Aucune catégorie vide trouvée — ton catalogue est propre.';
+$_['button_hide_all_empty'] = 'Masquer tout';
+$_['text_confirm_hide_all_empty'] = 'Ça va forcer le masquage de toutes les catégories actuellement à 0 produit actif sur le site. Tu peux annuler chacune individuellement dans l\'onglet Overrides. Continuer ?';
+$_['text_hide_all_empty_done'] = 'Fait — %d catégories vides masquées.';
 $_['text_no_results'] = 'Aucune catégorie trouvée.';
 
 // Onglets

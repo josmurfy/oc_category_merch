@@ -58,6 +58,15 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$this->load->model('extension/category_merch/module/category_merch');
 		$data['dashboard_rows'] = $this->model_extension_category_merch_module_category_merch->getTopCategoriesWithScore();
 
+		// Leaf categories = the actual, specific places your stock lives. Leads
+		// the dashboard instead of generic top-level buckets (Electronics, etc.)
+		// which say nothing about what's actually selling.
+		$data['leaf_rows'] = $this->model_extension_category_merch_module_category_merch->getLeafCategoriesWithScore(20);
+		$data['empty_category_count'] = count($this->model_extension_category_merch_module_category_merch->getEmptyCategoryIds(
+			is_array($data['module_category_merch_overrides']) ? $data['module_category_merch_overrides'] : []
+		));
+		$data['bulk_hide_empty_url'] = $this->url->link('extension/category_merch/module/category_merch.bulkHideEmpty', 'user_token=' . $this->session->data['user_token'], true);
+
 		$tree_page = $this->model_extension_category_merch_module_category_merch->getCategoryTreeWithScore('', 300, 0);
 		$data['dashboard_tree'] = $tree_page['rows'];
 		$data['dashboard_tree_total'] = (int)$tree_page['total'];
@@ -85,6 +94,14 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		$data['text_dashboard'] = $this->language->get('text_dashboard');
 		$data['text_category_tree'] = $this->language->get('text_category_tree');
 		$data['text_category_tree_hint'] = $this->language->get('text_category_tree_hint');
+		$data['text_leaf_categories'] = $this->language->get('text_leaf_categories');
+		$data['text_leaf_categories_hint'] = $this->language->get('text_leaf_categories_hint');
+		$data['text_general_view'] = $this->language->get('text_general_view');
+		$data['text_empty_cleanup_title'] = $this->language->get('text_empty_cleanup_title');
+		$data['text_empty_cleanup_none'] = $this->language->get('text_empty_cleanup_none');
+		$data['button_hide_all_empty'] = $this->language->get('button_hide_all_empty');
+		$data['text_confirm_hide_all_empty'] = $this->language->get('text_confirm_hide_all_empty');
+		$data['text_hide_all_empty_done'] = $this->language->get('text_hide_all_empty_done');
 		$data['text_no_results'] = $this->language->get('text_no_results');
 		$data['tab_settings'] = $this->language->get('tab_settings');
 		$data['tab_dashboard'] = $this->language->get('tab_dashboard');
@@ -631,6 +648,50 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 		}
 
 		$json['rows'] = $rows;
+
+		$this->response->setOutput(json_encode($json));
+	}
+
+	/**
+	 * AJAX: force-hide (override = -1) every category currently at 0 active
+	 * products in one action. The concrete, one-click use of the Overrides
+	 * mechanism — surfaced from the Dashboard instead of buried in a separate
+	 * tab, so it's obvious what it's actually for.
+	 */
+	public function bulkHideEmpty(): void {
+		$this->load->language('extension/category_merch/module/category_merch');
+		$this->response->addHeader('Content-Type: application/json');
+
+		$json = [];
+
+		if (!$this->user->hasPermission('modify', 'extension/category_merch/module/category_merch')) {
+			$json['error'] = $this->language->get('error_permission');
+			$this->response->setOutput(json_encode($json));
+			return;
+		}
+
+		$this->load->model('extension/category_merch/module/category_merch');
+		$this->load->model('setting/setting');
+
+		// editSetting() replaces the whole group, so start from the current
+		// full set and only mutate the two keys this action actually changes.
+		$current = $this->model_setting_setting->getSetting('module_category_merch');
+
+		$overrides = is_array($current['module_category_merch_overrides'] ?? null) ? $current['module_category_merch_overrides'] : [];
+
+		$empty_ids = $this->model_extension_category_merch_module_category_merch->getEmptyCategoryIds($overrides);
+
+		foreach ($empty_ids as $category_id) {
+			$overrides[$category_id] = -1;
+		}
+
+		$current['module_category_merch_overrides'] = $overrides;
+		$current['module_category_merch_cache_version'] = (int)($current['module_category_merch_cache_version'] ?? 0) + 1;
+
+		$this->model_setting_setting->editSetting('module_category_merch', $current);
+
+		$json['success'] = true;
+		$json['count'] = count($empty_ids);
 
 		$this->response->setOutput(json_encode($json));
 	}

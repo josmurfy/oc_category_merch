@@ -14,6 +14,14 @@ $_['text_force_hide'] = 'Force Hide';
 $_['text_dashboard'] = 'Category Dashboard';
 $_['text_category_tree'] = 'Category Tree — Drill-down Scores';
 $_['text_category_tree_hint'] = 'Click a category to expand it and see its children\'s scores, at any depth (sub, sub-sub, etc.).';
+$_['text_leaf_categories'] = 'Your Best-Stocked Categories';
+$_['text_leaf_categories_hint'] = 'The most specific categories that actually have stock — this is where your buyers land, not the generic parent buckets.';
+$_['text_general_view'] = 'General view (parent categories)';
+$_['text_empty_cleanup_title'] = 'Empty categories cluttering your catalog';
+$_['text_empty_cleanup_none'] = 'No empty categories found — your catalog is clean.';
+$_['button_hide_all_empty'] = 'Hide them all';
+$_['text_confirm_hide_all_empty'] = 'This will force-hide every category currently at 0 active products from the storefront. You can undo any of them individually in the Overrides tab. Continue?';
+$_['text_hide_all_empty_done'] = 'Done — %d empty categories hidden.';
 $_['text_no_results'] = 'No categories found.';
 
 // Tabs
