@@ -2,7 +2,7 @@
 
 OpenCart 4.x module to make your category menu smarter.
 
-**Version:** 0.5.4
+**Version:** 0.5.5
 **Compatibility:** OpenCart 4.x
 **Languages:** English, Français, Español
 **License:** MIT (see [LICENSE](LICENSE))
@@ -107,6 +107,9 @@ zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitigno
 ---
 
 ## Changelog
+
+### 0.5.5
+- Fix: **"active product" total counts didn't check `oc_product_to_store`**, so categories could show as having stock (and stay unfiltered/linked everywhere: menu, category page, related categories, showcase, dashboard) while their actual storefront page displayed "There are no products to list in this category." Root cause: the aggregate query counted any `product.status=1` + `date_available<=NOW()` product regardless of whether it was ever assigned to the current store via `product_to_store` — which is exactly the join OpenCart's own category/product listing requires. Both totals queries (admin dashboard, storefront filters) now join `product_to_store` on the configured `config_store_id`, matching the real customer-facing definition of "visible product" exactly.
 
 ### 0.5.4
 - Fix: **SEO-URL category resolution was silently broken for every category with a pretty URL slug.** `ensureSeoMap()` queried `oc_seo_url` assuming `query` held a string like `product/category=267` — the real schema stores `key='path'` and `value` as the underscore-joined category path (e.g. `267` or `11450_260010_15724`). The lookup matched zero rows, so `extractCategoryId()` returned 0 for any SEO-slugged category, which made the menu/category-page/sidebar filters skip them entirely (unfiltered, ungrouped native children shown instead). Affects all 144 SEO-path rows on this store (~72 categories × EN/FR slugs) — not just the two initially reported ("Books & Magazines", "Music"). Now reads `key`/`value` correctly and takes the last underscore segment as the category ID.
