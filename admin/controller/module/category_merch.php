@@ -801,6 +801,16 @@ class CategoryMerch extends \Opencart\System\Engine\Controller {
 			'status' => 1,
 			'sort_order' => 5
 		]);
+
+		$this->model_setting_event->deleteEventByCode('category_merch_sidebar');
+		$this->model_setting_event->addEvent([
+			'code' => 'category_merch_sidebar',
+			'trigger' => 'catalog/view/extension/opencart/module/category/before',
+			'action' => 'extension/category_merch/events.filterSidebarCategory',
+			'description' => 'OC4 Category Merch: filter the native Category sidebar module',
+			'status' => 1,
+			'sort_order' => 1
+		]);
 	}
 
 	/**

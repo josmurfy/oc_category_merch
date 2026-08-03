@@ -153,6 +153,130 @@ class Events extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * View before-render event for the native OpenCart "Category" sidebar
+	 * module (extension/opencart/module/category) — a completely separate
+	 * built-in module, placed in column_left on the "Category" layout via
+	 * Design > Layout. It has nothing to do with common/menu or
+	 * product/category's own listing (both already filtered above), shows
+	 * every top-level category and, for the current branch, its direct
+	 * children — fully unfiltered, no stock check at all. This was the
+	 * remaining place a buyer could still see 0-product categories after
+	 * everything else was fixed.
+	 */
+	public function filterSidebarCategory(string &$route, array &$data, string &$code, string &$output): void {
+		if ($route !== 'extension/opencart/module/category') {
+			return;
+		}
+
+		if (!(int)$this->config->get('module_category_merch_status')) {
+			return;
+		}
+
+		if (!isset($data['categories']) || !is_array($data['categories'])) {
+			return;
+		}
+
+		$hide_empty = (int)$this->config->get('module_category_merch_hide_empty');
+		$hide_empty_subs = (int)$this->config->get('module_category_merch_hide_empty_subs');
+		$sort_by_score = (int)$this->config->get('module_category_merch_sort_by_score');
+		$overrides = $this->config->get('module_category_merch_overrides');
+
+		if (!is_array($overrides)) {
+			$overrides = [];
+		}
+
+		$this->load->model('extension/category_merch/module/category_merch');
+
+		$categories = [];
+
+		foreach ($data['categories'] as $category) {
+			$category_id = (int)($category['category_id'] ?? 0);
+
+			if (!$category_id) {
+				$categories[] = $category;
+				continue;
+			}
+
+			$child_rows = [];
+
+			if ($hide_empty_subs && !empty($category['children'])) {
+				// Same leaf-parent regrouping as the top menu — this sidebar
+				// only ever expands the branch matching the current page, so
+				// this only runs for one category per request.
+				$groups = $this->model_extension_category_merch_module_category_merch->getLeafGroupsForRoot($category_id);
+
+				foreach ($groups as $group) {
+					$group_id = (int)$group['category_id'];
+					$override = isset($overrides[$group_id]) ? (int)$overrides[$group_id] : 0;
+
+					if ($override === -1) {
+						continue;
+					}
+
+					$child_rows[] = [
+						'category_id' => $group_id,
+						'name' => $group['name'],
+						'href' => $this->url->link('product/category', 'language=' . $this->config->get('config_language') . '&path=' . $category_id . '_' . $group_id),
+						'__total' => (int)$group['total']
+					];
+				}
+			} elseif (!empty($category['children']) && is_array($category['children'])) {
+				foreach ($category['children'] as $child) {
+					$child_id = (int)($child['category_id'] ?? 0);
+					$total = $child_id ? $this->model_extension_category_merch_module_category_merch->getActiveSubtreeTotal($child_id) : 0;
+					$override = $child_id && isset($overrides[$child_id]) ? (int)$overrides[$child_id] : 0;
+
+					if ($override === -1) {
+						continue;
+					}
+
+					$child['__total'] = $total;
+					$child_rows[] = $child;
+				}
+			}
+
+			if ($sort_by_score && $child_rows) {
+				usort($child_rows, function (array $a, array $b) {
+					return ((int)($b['__total'] ?? 0) <=> (int)($a['__total'] ?? 0)) ?: strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+				});
+			}
+
+			foreach ($child_rows as &$row) {
+				unset($row['__total']);
+			}
+			unset($row);
+
+			$total = $this->model_extension_category_merch_module_category_merch->getActiveSubtreeTotal($category_id);
+			$override = isset($overrides[$category_id]) ? (int)$overrides[$category_id] : 0;
+
+			if ($override === -1) {
+				continue;
+			}
+
+			if ($hide_empty && $total === 0 && $override !== 1) {
+				continue;
+			}
+
+			$category['children'] = $child_rows;
+			$category['__total'] = $total;
+			$categories[] = $category;
+		}
+
+		if ($sort_by_score && $categories) {
+			usort($categories, function (array $a, array $b) {
+				return ((int)($b['__total'] ?? 0) <=> (int)($a['__total'] ?? 0)) ?: strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+			});
+		}
+
+		foreach ($categories as &$category) {
+			unset($category['__total']);
+		}
+		unset($category);
+
+		$data['categories'] = $categories;
+	}
+
+	/**
 	 * View before-render event for product/category.
 	 *
 	 * Filters the direct-children listing that OpenCart's own category
