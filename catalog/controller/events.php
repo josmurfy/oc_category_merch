@@ -418,7 +418,7 @@ class Events extends \Opencart\System\Engine\Controller {
 		}
 
 		if ($html !== '') {
-			$output .= $html;
+			$this->injectBeforeFooter($output, $html);
 		}
 	}
 
@@ -472,21 +472,43 @@ class Events extends \Opencart\System\Engine\Controller {
 
 		$this->load->language('extension/category_merch/module/category_merch');
 
-		$html = '<div class="card mt-4"><div class="card-header"><i class="fa-solid fa-compass"></i> '
+		$html = '<style>.cm-related-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:999px;border:1px solid #f0ad4e;color:#a35a00;background:#fff8ec;text-decoration:none;font-size:.9rem;transition:transform .15s ease,box-shadow .15s ease}.cm-related-pill:hover{transform:translateY(-2px);box-shadow:0 .35rem .75rem rgba(240,173,78,.35);background:#f0ad4e;color:#fff}.cm-related-pill:hover .cm-related-count{background:#fff;color:#a35a00}.cm-related-count{background:#f0ad4e;color:#fff;border-radius:999px;padding:.1rem .55rem;font-size:.78rem;font-weight:600}</style>'
+			. '<div class="container-fluid mt-4 mb-4"><h2 class="h5 mb-3"><i class="fa-solid fa-compass" style="color:#f0ad4e"></i> '
 			. htmlspecialchars($this->language->get('text_related_categories'), ENT_QUOTES, 'UTF-8')
-			. '</div><div class="card-body"><div class="d-flex flex-wrap gap-2">';
+			. '</h2><div class="d-flex flex-wrap gap-2">';
 
 		foreach ($related as $row) {
 			$href = $this->url->link('product/category', 'path=' . (int)$row['category_id']);
 
-			$html .= '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" class="btn btn-outline-secondary btn-sm">'
+			$html .= '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" class="cm-related-pill">'
 				. htmlspecialchars((string)$row['name'], ENT_QUOTES, 'UTF-8')
-				. ' <span class="badge bg-secondary">' . (int)$row['total'] . '</span></a>';
+				. ' <span class="cm-related-count">' . (int)$row['total'] . '</span></a>';
 		}
 
-		$html .= '</div></div></div>';
+		$html .= '</div></div>';
 
-		$output .= $html;
+		$this->injectBeforeFooter($output, $html);
+	}
+
+	/**
+	 * Inserts $html just before the <footer> tag instead of blindly appending
+	 * to $output. On a "view/.../after" event, $output is already the FULLY
+	 * rendered page (header + footer included, since the twig template embeds
+	 * both) — a plain `.=` append lands the markup AFTER the closing </html>,
+	 * which is invalid HTML that browsers "fix" by moving it wherever they
+	 * please (observed live: it ended up rendered at the top of the page,
+	 * covering the site, unstyled). Falls back to a plain append if <footer>
+	 * isn't found, so the content is never silently dropped.
+	 */
+	private function injectBeforeFooter(string &$output, string $html): void {
+		$pos = strpos($output, '<footer');
+
+		if ($pos === false) {
+			$output .= $html;
+			return;
+		}
+
+		$output = substr($output, 0, $pos) . $html . substr($output, $pos);
 	}
 
 	private function buildCacheKey(array $categories, int $hide_empty, int $hide_empty_subs, int $sort_by_score, int $cache_version, int $language_id, array $overrides): string {
@@ -588,6 +610,17 @@ class Events extends \Opencart\System\Engine\Controller {
 		return $this->seo_map[$keyword] ?? 0;
 	}
 
+	/**
+	 * oc_seo_url stores category paths as key='path', value='220_2984' (the
+	 * full underscore-joined ancestor path, same convention as the raw
+	 * ?path= query param) — NOT as a "product/category=X" query string. The
+	 * previous version of this method assumed the latter, so the lookup
+	 * WHERE clause matched zero rows and every SEO-slugged category (any
+	 * category with a configured keyword, e.g. "Books & Magazines", "Music")
+	 * silently fell through extractCategoryId() as unresolvable — leaving
+	 * their menu/sidebar children completely unfiltered and ungrouped, with
+	 * no error or visible sign anything was wrong.
+	 */
 	private function ensureSeoMap(): void {
 		if ($this->seo_loaded) {
 			return;
@@ -597,17 +630,19 @@ class Events extends \Opencart\System\Engine\Controller {
 		$store_id = (int)$this->config->get('config_store_id');
 		$language_id = (int)$this->config->get('config_language_id');
 
-		$sql = "SELECT `keyword`, `query` FROM " . DB_PREFIX . "seo_url
+		$sql = "SELECT `keyword`, `value` FROM " . DB_PREFIX . "seo_url
 			WHERE store_id = '" . $store_id . "'
 			AND language_id = '" . $language_id . "'
-			AND `query` LIKE 'product/category=%'";
+			AND `key` = 'path'";
 
 		$rows = $this->db->query($sql)->rows;
 
 		foreach ($rows as $row) {
-			$q = (string)$row['query'];
-			if (strpos($q, 'product/category=') === 0) {
-				$this->seo_map[(string)$row['keyword']] = (int)substr($q, strlen('product/category='));
+			$parts = explode('_', (string)$row['value']);
+			$category_id = (int)end($parts);
+
+			if ($category_id) {
+				$this->seo_map[(string)$row['keyword']] = $category_id;
 			}
 		}
 	}

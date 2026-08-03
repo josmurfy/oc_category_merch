@@ -2,7 +2,7 @@
 
 OpenCart 4.x module to make your category menu smarter.
 
-**Version:** 0.4.0
+**Version:** 0.5.4
 **Compatibility:** OpenCart 4.x
 **Languages:** English, Français, Español
 **License:** MIT (see [LICENSE](LICENSE))
@@ -107,6 +107,26 @@ zip -r category_merch.ocmod.zip . -x ".git/*" "*.DS_Store" "README.md" ".gitigno
 ---
 
 ## Changelog
+
+### 0.5.4
+- Fix: **SEO-URL category resolution was silently broken for every category with a pretty URL slug.** `ensureSeoMap()` queried `oc_seo_url` assuming `query` held a string like `product/category=267` — the real schema stores `key='path'` and `value` as the underscore-joined category path (e.g. `267` or `11450_260010_15724`). The lookup matched zero rows, so `extractCategoryId()` returned 0 for any SEO-slugged category, which made the menu/category-page/sidebar filters skip them entirely (unfiltered, ungrouped native children shown instead). Affects all 144 SEO-path rows on this store (~72 categories × EN/FR slugs) — not just the two initially reported ("Books & Magazines", "Music"). Now reads `key`/`value` correctly and takes the last underscore segment as the category ID.
+- Fix: **"Related Categories" widget position + styling.** `catalog/view/.../after` events receive the fully-rendered page (header+footer already embedded), so the previous `$output .= $html` landed the widget's markup after `</html>` — invalid HTML that browsers relocated unpredictably (observed live: rendered at the very top, covering the site, unstyled/gray). New `injectBeforeFooter()` helper splices the markup right before `<footer>` instead. Also restyled from plain gray Bootstrap outline badges to warm-orange pills (`.cm-related-pill`).
+
+### 0.5.3
+- New: also filters OpenCart's native "Category" sidebar module (separate from this extension's own menu event), which was rendering the full unfiltered tree.
+
+### 0.5.2
+- Fix: `installUpdate()` only copied files and never re-ran `install()`'s event/settings registration, so events or settings added by an update stayed silently inactive until a manual reinstall. Now calls the same idempotent `registerEvents()` / `ensureDefaultSettings()` after every update.
+
+### 0.5.1
+- Fix: `save()` rebuilt its settings array from scratch instead of merging into the existing set, silently deleting unrelated keys (`editSetting()` replaces the whole code-group) — could null out settings and crash `DB::escape()` on the next read. Now starts from the current full setting set and strips nulls before saving.
+
+### 0.5.0
+- New: storefront sub-menu is now grouped by each eBay leaf category's immediate parent instead of showing raw children — bare leaves (e.g. "Girls") gain context and siblings merge into one entry with combined stock.
+
+### 0.4.1 – 0.4.3
+- Dashboard redesign: leaf categories (real eBay taxonomy `leaf=1` flag, not a computed guess) shown first, with a bulk "hide all empty categories" action.
+- Fix: leaf-categories view used a wrong "no children" heuristic instead of the real `leaf` column; hardened against stale-cache missing-key warnings.
 
 ### 0.4.0
 - New: **Dashboard drill-down tree** — lazy-loaded expandable category tree (Dashboard tab) shows the score at any depth (sub, sub-sub, etc.), not just top-level totals.
